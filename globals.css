@@ -1,0 +1,93 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #070B10;
+  --navy: #0C1520;
+  --navy-mid: #101C2C;
+  --navy-light: #162238;
+  --teal: #00D4AA;
+  --teal-dim: rgba(0,212,170,0.1);
+  --teal-border: rgba(0,212,170,0.22);
+  --white: #EEF2F7;
+  --white-dim: rgba(238,242,247,0.55);
+  --white-faint: rgba(238,242,247,0.1);
+  --border: rgba(255,255,255,0.06);
+  --red: #F05252;
+  --amber: #F59E0B;
+  --green: #10B981;
+  --font-d: 'Syne', sans-serif;
+  --font-b: 'DM Sans', sans-serif;
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-b);
+  min-height: 100vh;
+}
+
+button { cursor: pointer; font-family: var(--font-b); }
+input, textarea { font-family: var(--font-b); }
+
+.btn-primary {
+  background: var(--teal);
+  color: var(--black);
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 10px;
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-primary:hover { background: #00EEBB; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--white-dim);
+  border: 1px solid var(--border);
+  padding: 0.875rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-secondary:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+
+.card {
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.input {
+  width: 100%;
+  background: var(--navy-light);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.875rem 1.25rem;
+  color: var(--white);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input::placeholder { color: var(--white-faint); }
+.input:focus { border-color: var(--teal-border); }
+
+.error {
+  background: rgba(240,82,82,0.1);
+  border: 1px solid rgba(240,82,82,0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: var(--red);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.5s ease both; }
