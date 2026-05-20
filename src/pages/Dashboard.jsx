@@ -150,7 +150,10 @@ Rewrite the message, then explain in one sentence why this works for their profi
               </button>
             ))}
           </div>
-          <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)' }}>{profile.full_name}</div>
+          <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {profile.full_name}
+            <button onClick={() => supabase.auth.signOut()} style={{ background: 'none', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.3rem 0.75rem', color: 'var(--white-dim)', fontSize: '0.75rem', fontFamily: 'var(--font-b)', cursor: 'pointer' }}>Sign out</button>
+          </div>
         </div>
       </div>
 
