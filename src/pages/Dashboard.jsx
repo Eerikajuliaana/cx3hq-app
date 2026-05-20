@@ -16,8 +16,14 @@ export default function Dashboard({ profile }) {
   const [transResult, setTransResult] = useState('')
   const [transLoading, setTransLoading] = useState(false)
   const [checkinWord, setCheckinWord] = useState('')
+  const [myAssessment, setMyAssessment] = useState(null)
 
-  useEffect(() => { loadTeam() }, [])
+  useEffect(() => { loadTeam(); loadMyAssessment() }, [])
+
+  async function loadMyAssessment() {
+    const { data } = await supabase.from('assessments').select('*').eq('user_id', profile.id).single()
+    setMyAssessment(data)
+  }
 
   async function loadTeam() {
     const { data: teamData } = await supabase.from('teams').select('*').eq('id', profile.team_id).single()
@@ -125,6 +131,7 @@ Rewrite the message, then explain in one sentence why this works for their profi
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
+    { id: 'myprofile', label: 'My profile' },
     { id: 'team', label: 'Team profiles' },
     { id: 'translator', label: '💬 Comm translator' },
     { id: 'coach', label: 'AI coach' },
@@ -222,6 +229,45 @@ Rewrite the message, then explain in one sentence why this works for their profi
                     </div>
                   )
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MY PROFILE */}
+        {tab === 'myprofile' && (
+          <div className="fade-up">
+            <div style={{ background: 'linear-gradient(135deg,var(--navy-mid),var(--navy-light))', border: '1px solid var(--teal-border)', borderRadius: '16px', padding: '2rem', marginBottom: '1.25rem', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg,var(--teal),transparent)' }} />
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Your performance profile</div>
+              <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>{profile.full_name?.split(' ')[0]}'s natural strengths</div>
+              {!myAssessment && (
+                <div style={{ color: 'var(--amber)', fontSize: '0.85rem' }}>⚠️ You haven't completed your assessment yet. Complete it to see your profile.</div>
+              )}
+            </div>
+            {myAssessment && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {Object.entries(myAssessment.scores || {}).map(([dim, score]) => (
+                  <div key={dim} className="card">
+                    <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>{dim}</div>
+                    <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.5rem' }}>
+                      {dim === 'thinking' && (score > 3.5 ? 'Big-picture thinker' : score < 2.5 ? 'Sequential analyst' : 'Flexible thinker')}
+                      {dim === 'sensory' && (score > 3.5 ? 'Multi-channel learner' : 'Focused channel learner')}
+                      {dim === 'environment' && (score > 3.5 ? 'Needs movement & informality' : 'Structured environment')}
+                      {dim === 'social' && (score > 3.5 ? 'Team & pair oriented' : score < 2.5 ? 'Independent worker' : 'Flexible collaborator')}
+                      {dim === 'motivation' && (score > 3.5 ? 'Strong inner drive' : score < 2.5 ? '⚠️ Low inner motivation' : 'Moderate inner drive')}
+                      {dim === 'structure' && (score > 3.5 ? 'Highly adaptable' : score < 2.5 ? 'Needs clear structure' : 'Flexible either way')}
+                    </div>
+                    <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', background: getScoreColor(score), width: `${(score/5)*100}%`, borderRadius: '2px' }} />
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--white-dim)', marginTop: '0.3rem', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Low</span>
+                      <span style={{ color: getScoreColor(score), fontWeight: 600 }}>{score?.toFixed(1)}/5</span>
+                      <span>High</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
