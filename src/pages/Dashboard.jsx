@@ -21,8 +21,8 @@ export default function Dashboard({ profile }) {
   useEffect(() => { loadTeam(); loadMyAssessment() }, [])
 
   async function loadMyAssessment() {
-    const { data } = await supabase.from('assessments').select('*').eq('user_id', profile.id).single()
-    setMyAssessment(data)
+    const { data } = await supabase.from('assessments').select('*').eq('user_id', profile.id).order('completed_at', { ascending: false }).limit(1)
+    setMyAssessment(data?.[0] || null)
   }
 
   async function loadTeam() {
