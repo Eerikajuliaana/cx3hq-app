@@ -61,7 +61,9 @@ CX3HQ measures:
 - Social (1-2=prefers solo, 4-5=team oriented)
 - Structure (1-2=needs structure, 4-5=highly adaptable)
 
-Scores below 2.5 on motivation are urgent signals. Give specific, actionable advice. Keep responses concise and practical.`
+Scores below 2.5 on motivation are urgent signals. Give specific, actionable advice. Keep responses concise and practical.
+
+IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach speaking directly to the manager. Short paragraphs, human tone, no symbols.`
 
     try {
       const res = await fetch('/api/chat', {
