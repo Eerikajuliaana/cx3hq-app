@@ -19,8 +19,8 @@ export default function Employee({ profile }) {
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
-    const { data: asmData } = await supabase.from('assessments').select('*').eq('user_id', profile.id).single()
-    setAssessment(asmData)
+    const { data: asmData } = await supabase.from('assessments').select('*').eq('user_id', profile.id).order('completed_at', { ascending: false }).limit(1)
+    setAssessment(asmData?.[0] || null)
 
     const { data: teamData } = await supabase.from('profiles').select('*, assessments(scores)').eq('team_id', profile.team_id).neq('id', profile.id)
     setTeammates(teamData || [])
@@ -226,11 +226,14 @@ Rewrite the message, then briefly explain why this works for them.`
             <div className="card">
               <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)', marginBottom: '0.75rem' }}>Who are you writing to?</div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                {teammates.filter(m => m.assessments?.length > 0).map(m => (
+                {teammates.map(m => (
                   <button key={m.id} onClick={() => setTransTarget(m.id)} style={{ padding: '0.35rem 0.875rem', borderRadius: '100px', fontSize: '0.78rem', border: `1px solid ${transTarget === m.id ? 'var(--teal-border)' : 'var(--border)'}`, background: transTarget === m.id ? 'var(--teal-dim)' : 'var(--navy-light)', color: transTarget === m.id ? 'var(--teal)' : 'var(--white-dim)', fontFamily: 'var(--font-b)' }}>
-                    {m.full_name?.split(' ')[0]}
+                    {m.full_name?.split(' ')[0]} {m.role === 'manager' ? '(Manager)' : ''}
                   </button>
                 ))}
+                {teammates.length === 0 && (
+                  <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)' }}>No teammates yet — your manager will appear here once they join.</div>
+                )}
               </div>
               <textarea value={transInput} onChange={e => setTransInput(e.target.value)} placeholder="Write your message..." style={{ width: '100%', background: 'var(--navy-light)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.875rem', color: 'var(--white)', fontSize: '0.85rem', lineHeight: 1.6, resize: 'vertical', minHeight: '80px', outline: 'none', fontFamily: 'var(--font-b)', marginBottom: '0.75rem' }} />
               <button onClick={translate} disabled={!transInput || !transTarget || transLoading} className="btn-primary" style={{ maxWidth: '200px' }}>
