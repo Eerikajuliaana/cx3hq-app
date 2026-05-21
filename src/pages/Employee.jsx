@@ -38,7 +38,8 @@ export default function Employee({ profile }) {
 Their assessment scores: thinking=${scores.thinking?.toFixed(1) || '3'}, sensory avg=${scores.sensory?.toFixed(1) || '3'}, motivation=${scores.motivation?.toFixed(1) || '3'}, social=${scores.social?.toFixed(1) || '3'}, structure=${scores.structure?.toFixed(1) || '3'}.
 ${scores.thinking > 3.5 ? 'Big-picture thinker — needs context first, hates being buried in details.' : 'Sequential thinker — likes structure, steps and precision.'}
 ${scores.motivation < 2.5 ? 'Inner motivation is currently low — be supportive and help reconnect with purpose.' : 'Good inner drive — reinforce and build on it.'}
-Give personal, specific advice based on their unique profile. Be warm, practical and concise.`
+Give personal, specific advice based on their unique profile. Be warm, practical and concise.
+IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach. Short paragraphs, human tone, no symbols.`
 
     try {
       const res = await fetch('/api/chat', {
@@ -46,7 +47,7 @@ Give personal, specific advice based on their unique profile. Be warm, practical
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           system: systemPrompt,
-          messages: [...chatMessages, { role: 'user', content: userMsg }].map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }))
+          messages: [...chatMessages, { role: 'user', content: userMsg }].map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content || m.text || '' }))
         })
       })
       const data = await res.json()
