@@ -17,12 +17,29 @@ export default function Dashboard({ profile }) {
   const [transLoading, setTransLoading] = useState(false)
   const [checkinWord, setCheckinWord] = useState('')
   const [myAssessment, setMyAssessment] = useState(null)
+  const [teamCheckins, setTeamCheckins] = useState({})
 
   useEffect(() => { loadTeam(); loadMyAssessment() }, [])
 
   async function loadMyAssessment() {
     const { data } = await supabase.from('assessments').select('*').eq('user_id', profile.id).order('completed_at', { ascending: false }).limit(1)
     setMyAssessment(data?.[0] || null)
+  }
+
+  async function loadTeamCheckins(memberIds) {
+    if (!memberIds.length) return
+    const { data } = await supabase
+      .from('checkins')
+      .select('*')
+      .in('user_id', memberIds)
+      .order('created_at', { ascending: false })
+    
+    // Get latest checkin per user
+    const latest = {}
+    data?.forEach(c => {
+      if (!latest[c.user_id]) latest[c.user_id] = c
+    })
+    setTeamCheckins(latest)
   }
 
   async function loadTeam() {
@@ -37,6 +54,9 @@ export default function Dashboard({ profile }) {
 
     setMembers(memberData || [])
     setLoading(false)
+    if (memberData?.length) {
+      loadTeamCheckins(memberData.map(m => m.id))
+    }
   }
 
   async function sendChat() {
@@ -220,7 +240,30 @@ Rewrite the message, then explain in one sentence why this works for their profi
               {checkinWord && <button className="btn-primary" onClick={saveCheckin} style={{ maxWidth: '160px', padding: '0.6rem' }}>Save check-in</button>}
             </div>
 
-            {/* Team overview */}
+            {/* CHECKIN ALERTS */}
+            {!loading && members.length > 0 && (() => {
+              const needsAttention = members.filter(m => {
+                const c = teamCheckins[m.id]
+                return c && ['Stuck', 'Tired'].includes(c.word)
+              })
+              if (!needsAttention.length) return null
+              return (
+                <div style={{ marginBottom: '1.25rem' }}>
+                  {needsAttention.map(m => (
+                    <div key={m.id} style={{ background: 'rgba(240,82,82,0.08)', border: '1px solid rgba(240,82,82,0.25)', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ fontSize: '1.25rem' }}>⚠️</div>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--white)' }}>{m.full_name} checked in as <span style={{ color: '#F05252' }}>{teamCheckins[m.id]?.word}</span> this week</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)', marginTop: '0.15rem' }}>Consider reaching out — a quick check-in conversation can make a big difference</div>
+                        </div>
+                      </div>
+                      <button onClick={() => setTab('coach')} style={{ background: 'none', border: '1px solid rgba(240,82,82,0.3)', borderRadius: '6px', padding: '0.35rem 0.875rem', color: '#F05252', fontSize: '0.75rem', fontFamily: 'var(--font-b)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Ask AI coach →</button>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
             {loading ? (
               <div style={{ color: 'var(--white-dim)', textAlign: 'center', padding: '2rem' }}>Loading team...</div>
             ) : members.length === 0 ? (
@@ -244,6 +287,17 @@ Rewrite the message, then explain in one sentence why this works for their profi
                           <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{m.full_name}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)' }}>{m.email}</div>
                         </div>
+                        {/* Checkin badge */}
+                        {teamCheckins[m.id] && (
+                          <div style={{
+                            padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 600,
+                            background: ['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? 'rgba(240,82,82,0.12)' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
+                            color: ['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? '#F05252' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'var(--green)' : 'var(--amber)',
+                            border: `1px solid ${['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? 'rgba(240,82,82,0.25)' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'}`,
+                          }}>
+                            {teamCheckins[m.id]?.word}
+                          </div>
+                        )}
                         {hasAssessment ? (
                           <div style={{ display: 'flex', gap: '1rem' }}>
                             {['thinking', 'motivation', 'social'].map(dim => (
