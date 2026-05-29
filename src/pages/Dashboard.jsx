@@ -46,24 +46,31 @@ export default function Dashboard({ profile }) {
     setChatMessages(m => [...m, { role: 'user', text: userMsg }])
     setChatLoading(true)
 
+    const myScores = myAssessment?.scores || {}
     const teamContext = members.map(m => {
       const scores = m.assessments?.[0]?.scores || {}
       return `${m.full_name}: thinking=${scores.thinking?.toFixed(1) || 'N/A'}, motivation=${scores.motivation?.toFixed(1) || 'N/A'}, social=${scores.social?.toFixed(1) || 'N/A'}`
     }).join('\n')
 
-    const systemPrompt = `You are CX3HQ AI coach for ${profile.full_name}, a manager. You know their team profiles:
-${teamContext}
+    const systemPrompt = `You are CX3HQ AI coach for ${profile.full_name}, a manager.
+
+YOUR OWN PROFILE (the manager):
+thinking=${myScores.thinking?.toFixed(1) || 'unknown'}, sensory=${myScores.sensory?.toFixed(1) || 'unknown'}, motivation=${myScores.motivation?.toFixed(1) || 'unknown'}, social=${myScores.social?.toFixed(1) || 'unknown'}, structure=${myScores.structure?.toFixed(1) || 'unknown'}, environment=${myScores.environment?.toFixed(1) || 'unknown'}
+${myScores.thinking > 3.5 ? 'You are a big-picture thinker — you need context and purpose before details.' : myScores.thinking < 2.5 ? 'You are a sequential thinker — you prefer structure, steps and precision.' : 'You are a flexible thinker.'}
+${myScores.motivation < 2.5 ? 'Your own motivation is currently low — acknowledge this when relevant.' : myScores.motivation > 3.5 ? 'You have strong inner drive — build on this.' : ''}
+
+YOUR TEAM:
+${teamContext || 'No team members have completed their assessment yet.'}
 
 CX3HQ measures:
-- Thinking (1-2=sequential/detail, 4-5=big-picture/simultaneous)  
-- Sensory channels (what formats information lands best)
+- Thinking (1-2=sequential/detail, 4-5=big-picture/simultaneous)
 - Motivation (1-2=low/concerning, 4-5=strong inner drive)
 - Social (1-2=prefers solo, 4-5=team oriented)
-- Structure (1-2=needs structure, 4-5=highly adaptable)
+- Structure (1-2=needs clear structure, 4-5=highly adaptable)
 
-Scores below 2.5 on motivation are urgent signals. Give specific, actionable advice. Keep responses concise and practical.
+You can coach on both: the manager's own performance AND how to lead their team. If they ask about themselves, use their profile. If they ask about the team, use team data. Scores below 2.5 on motivation are urgent signals.
 
-IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach speaking directly to the manager. Short paragraphs, human tone, no symbols.`
+IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach. Short paragraphs, human tone, no symbols.`
 
     try {
       const res = await fetch('/api/chat', {
@@ -499,7 +506,7 @@ Rewrite the message, then explain in one sentence why this works for their profi
             </div>
 
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {['Give me a team summary', 'Who needs attention this week?', 'How do I communicate better with my team?', 'What coaching tasks do you suggest?'].map(s => (
+              {['Give me a team summary', 'Who needs attention this week?', 'How do I work at my best?', 'How should I prepare for a difficult conversation?', 'What coaching tasks do you suggest?'].map(s => (
                 <button key={s} onClick={() => { setChatInput(s); setTimeout(sendChat, 100) }} style={{ background: 'var(--navy-mid)', border: '1px solid var(--border)', color: 'var(--white-dim)', padding: '0.35rem 0.75rem', borderRadius: '100px', fontSize: '0.72rem', fontFamily: 'var(--font-b)' }}>
                   {s}
                 </button>
