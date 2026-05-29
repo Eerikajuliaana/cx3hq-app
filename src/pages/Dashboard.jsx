@@ -192,26 +192,59 @@ Rewrite the message, then explain in one sentence why this works for their profi
         {/* OVERVIEW */}
         {tab === 'overview' && (
           <div className="fade-up">
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Good morning, {profile.full_name.split(' ')[0]} 👋</h1>
-              <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>Team: {team?.name} · {members.length} members</p>
+
+            {/* HEADER */}
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
+                {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </div>
+              <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
+                {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'}, {profile.full_name.split(' ')[0]}
+              </h1>
+              <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>{team?.name} · {members.length} {members.length === 1 ? 'member' : 'members'}</p>
             </div>
 
-            {/* ONBOARDING BANNER — shown when no members yet */}
+            {/* STATS ROW */}
+            {!loading && members.length > 0 && (() => {
+              const withAssessment = members.filter(m => m.assessments?.length > 0)
+              const withCheckin = members.filter(m => teamCheckins[m.id])
+              const needsAttention = members.filter(m => {
+                const scores = m.assessments?.[0]?.scores || {}
+                const checkin = teamCheckins[m.id]
+                return (scores.motivation && scores.motivation < 2.5) || (checkin && ['Stuck','Tired'].includes(checkin.word))
+              })
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                  {[
+                    { label: 'Team size', value: members.length, color: 'var(--teal)' },
+                    { label: 'Profiles complete', value: `${withAssessment.length}/${members.length}`, color: withAssessment.length === members.length ? 'var(--green)' : 'var(--amber)' },
+                    { label: 'Checked in', value: `${withCheckin.length}/${members.length}`, color: withCheckin.length === members.length ? 'var(--green)' : 'var(--amber)' },
+                    { label: 'Needs attention', value: needsAttention.length, color: needsAttention.length > 0 ? 'var(--red)' : 'var(--green)' },
+                  ].map(s => (
+                    <div key={s.label} className="card" style={{ textAlign: 'center', padding: '1.25rem 1rem' }}>
+                      <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.75rem', fontWeight: 800, color: s.color, marginBottom: '0.25rem' }}>{s.value}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {/* ONBOARDING BANNER */}
             {!loading && members.length === 0 && (
               <div style={{ background: 'linear-gradient(135deg,var(--navy-mid),var(--navy-light))', border: '1px solid var(--teal-border)', borderRadius: '16px', padding: '2rem', marginBottom: '1.5rem', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg,var(--teal),transparent)' }} />
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Welcome to CX3HQ 🎉</div>
-                <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>You're all set. Here's how to get started.</div>
+                <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>You're all set. Here's how to get started.</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
                   {[
-                    { step: '1', done: true, text: 'Create your team ✓ — done!' },
+                    { step: '1', done: true, text: 'Create your team ✓' },
                     { step: '2', done: false, text: 'Complete your own assessment — go to "My profile" tab' },
                     { step: '3', done: false, text: 'Invite your team — share the invite code below' },
-                    { step: '4', done: false, text: 'Once they join — come back here and explore Team profiles, Comm translator and AI coach' },
+                    { step: '4', done: false, text: 'Once they join — explore Team profiles, Comm translator and AI coach' },
                   ].map(s => (
                     <div key={s.step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: s.done ? 'var(--teal)' : 'var(--navy-light)', border: `1px solid ${s.done ? 'var(--teal)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: s.done ? 'var(--black)' : 'var(--white-dim)', flexShrink: 0, marginTop: '0.1rem' }}>{s.done ? '✓' : s.step}</div>
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: s.done ? 'var(--teal)' : 'var(--navy-light)', border: `1px solid ${s.done ? 'var(--teal)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.62rem', fontWeight: 700, color: s.done ? 'var(--black)' : 'var(--white-dim)', flexShrink: 0, marginTop: '0.1rem' }}>{s.done ? '✓' : s.step}</div>
                       <div style={{ fontSize: '0.85rem', color: s.done ? 'var(--teal)' : 'var(--white)', lineHeight: 1.5 }}>{s.text}</div>
                     </div>
                   ))}
@@ -220,110 +253,116 @@ Rewrite the message, then explain in one sentence why this works for their profi
               </div>
             )}
 
-            {/* Team code */}
-            <div className="card" style={{ marginBottom: '1.25rem', borderColor: 'var(--teal-border)', background: 'var(--teal-dim)' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>Team invite code</div>
-              <div style={{ fontFamily: 'var(--font-d)', fontSize: '1rem', fontWeight: 700, color: 'var(--white)', marginBottom: '0.4rem' }}>{profile.team_id}</div>
-              <div style={{ fontSize: '0.78rem', color: 'rgba(0,212,170,0.7)' }}>Share this code with your team members so they can join and complete their assessment</div>
-            </div>
+            {/* TWO COLUMN LAYOUT */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
 
-            {/* Weekly checkin */}
-            <div className="card" style={{ marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 500, marginBottom: '0.75rem' }}>Your weekly check-in — how are you feeling this week?</div>
-              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-                {['Energised', 'Stretched', 'Focused', 'Stuck', 'Tired', 'Excited'].map(w => (
-                  <button key={w} onClick={() => setCheckinWord(w)} style={{ padding: '0.35rem 0.875rem', borderRadius: '100px', fontSize: '0.75rem', border: `1px solid ${checkinWord === w ? 'var(--teal)' : 'var(--border)'}`, background: checkinWord === w ? 'var(--teal-dim)' : 'var(--navy-light)', color: checkinWord === w ? 'var(--teal)' : 'var(--white-dim)', fontFamily: 'var(--font-b)', transition: 'all 0.15s' }}>
-                    {w}
-                  </button>
-                ))}
+              {/* TEAM INVITE CODE */}
+              <div className="card" style={{ borderColor: 'var(--teal-border)', background: 'var(--teal-dim)' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Team invite code</div>
+                <div style={{ fontFamily: 'var(--font-d)', fontSize: '0.82rem', fontWeight: 700, color: 'var(--white)', marginBottom: '0.4rem', wordBreak: 'break-all' }}>{profile.team_id}</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(0,212,170,0.6)' }}>Share with your team to join</div>
+                <button onClick={() => { navigator.clipboard?.writeText(profile.team_id); alert('Copied!') }} style={{ marginTop: '0.75rem', background: 'none', border: '1px solid var(--teal-border)', borderRadius: '6px', padding: '0.3rem 0.75rem', color: 'var(--teal)', fontSize: '0.72rem', fontFamily: 'var(--font-b)', cursor: 'pointer' }}>Copy code</button>
               </div>
-              {checkinWord && <button className="btn-primary" onClick={saveCheckin} style={{ maxWidth: '160px', padding: '0.6rem' }}>Save check-in</button>}
+
+              {/* YOUR WEEKLY CHECKIN */}
+              <div className="card">
+                <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Your check-in this week</div>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                  {['Energised', 'Stretched', 'Focused', 'Stuck', 'Tired', 'Excited'].map(w => (
+                    <button key={w} onClick={() => setCheckinWord(w)} style={{ padding: '0.25rem 0.65rem', borderRadius: '100px', fontSize: '0.72rem', border: `1px solid ${checkinWord === w ? 'var(--teal)' : 'var(--border)'}`, background: checkinWord === w ? 'var(--teal-dim)' : 'var(--navy-light)', color: checkinWord === w ? 'var(--teal)' : 'var(--white-dim)', fontFamily: 'var(--font-b)', transition: 'all 0.15s' }}>{w}</button>
+                  ))}
+                </div>
+                {checkinWord && <button className="btn-primary" onClick={saveCheckin} style={{ padding: '0.5rem', fontSize: '0.78rem' }}>Save ✓</button>}
+              </div>
             </div>
 
-            {/* CHECKIN ALERTS */}
+            {/* ATTENTION ALERTS */}
             {!loading && members.length > 0 && (() => {
               const needsAttention = members.filter(m => {
-                const c = teamCheckins[m.id]
-                return c && ['Stuck', 'Tired'].includes(c.word)
+                const checkin = teamCheckins[m.id]
+                const scores = m.assessments?.[0]?.scores || {}
+                return (checkin && ['Stuck','Tired'].includes(checkin.word)) || (scores.motivation && scores.motivation < 2.5)
               })
               if (!needsAttention.length) return null
               return (
                 <div style={{ marginBottom: '1.25rem' }}>
-                  {needsAttention.map(m => (
-                    <div key={m.id} style={{ background: 'rgba(240,82,82,0.08)', border: '1px solid rgba(240,82,82,0.25)', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ fontSize: '1.25rem' }}>⚠️</div>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>⚠️ Needs your attention</div>
+                  {needsAttention.map(m => {
+                    const checkin = teamCheckins[m.id]
+                    const scores = m.assessments?.[0]?.scores || {}
+                    return (
+                      <div key={m.id} style={{ background: 'rgba(240,82,82,0.06)', border: '1px solid rgba(240,82,82,0.2)', borderRadius: '12px', padding: '1rem 1.25rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--white)' }}>{m.full_name} checked in as <span style={{ color: '#F05252' }}>{teamCheckins[m.id]?.word}</span> this week</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)', marginTop: '0.15rem' }}>Consider reaching out — a quick check-in conversation can make a big difference</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{m.full_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)', marginTop: '0.2rem' }}>
+                            {checkin && ['Stuck','Tired'].includes(checkin.word) && `Checked in as "${checkin.word}" this week`}
+                            {scores.motivation && scores.motivation < 2.5 && ` · Low motivation score (${scores.motivation?.toFixed(1)})`}
+                          </div>
                         </div>
+                        <button onClick={() => setTab('coach')} style={{ background: 'none', border: '1px solid rgba(240,82,82,0.3)', borderRadius: '6px', padding: '0.35rem 0.875rem', color: '#F05252', fontSize: '0.72rem', fontFamily: 'var(--font-b)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Ask AI coach →</button>
                       </div>
-                      <button onClick={() => setTab('coach')} style={{ background: 'none', border: '1px solid rgba(240,82,82,0.3)', borderRadius: '6px', padding: '0.35rem 0.875rem', color: '#F05252', fontSize: '0.75rem', fontFamily: 'var(--font-b)', cursor: 'pointer', whiteSpace: 'nowrap' }}>Ask AI coach →</button>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )
             })()}
+
+            {/* TEAM LIST */}
             {loading ? (
               <div style={{ color: 'var(--white-dim)', textAlign: 'center', padding: '2rem' }}>Loading team...</div>
-            ) : members.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>👥</div>
-                <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.5rem' }}>No team members yet</div>
-                <div style={{ color: 'var(--white-dim)', fontSize: '0.85rem' }}>Share your team code above so members can join and complete their assessment.</div>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
-                {members.map(m => {
-                  const scores = m.assessments?.[0]?.scores || {}
-                  const hasAssessment = m.assessments?.length > 0
-                  return (
-                    <div key={m.id} className="card">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--navy-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.85rem', color: 'var(--teal)', flexShrink: 0 }}>
-                          {m.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{m.full_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--white-dim)' }}>{m.email}</div>
-                        </div>
-                        {/* Checkin badge */}
-                        {teamCheckins[m.id] && (
-                          <div style={{
-                            padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.72rem', fontWeight: 600,
-                            background: ['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? 'rgba(240,82,82,0.12)' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
-                            color: ['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? '#F05252' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'var(--green)' : 'var(--amber)',
-                            border: `1px solid ${['Stuck','Tired'].includes(teamCheckins[m.id]?.word) ? 'rgba(240,82,82,0.25)' : ['Energised','Excited','Focused'].includes(teamCheckins[m.id]?.word) ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'}`,
-                          }}>
-                            {teamCheckins[m.id]?.word}
+            ) : members.length === 0 ? null : (
+              <div>
+                <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Team this week</div>
+                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                  {members.map(m => {
+                    const scores = m.assessments?.[0]?.scores || {}
+                    const hasAssessment = m.assessments?.length > 0
+                    const checkin = teamCheckins[m.id]
+                    const checkinColor = checkin ? (['Stuck','Tired'].includes(checkin.word) ? '#F05252' : ['Energised','Excited','Focused'].includes(checkin.word) ? 'var(--green)' : 'var(--amber)') : null
+                    return (
+                      <div key={m.id} className="card" style={{ padding: '1rem 1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--navy-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.8rem', color: 'var(--teal)', flexShrink: 0 }}>
+                            {m.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </div>
-                        )}
-                        {hasAssessment ? (
-                          <div style={{ display: 'flex', gap: '1rem' }}>
-                            {['thinking', 'motivation', 'social'].map(dim => (
-                              <div key={dim} style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '1rem', fontWeight: 700, color: getScoreColor(scores[dim]), fontFamily: 'var(--font-d)' }}>{scores[dim]?.toFixed(1) || '—'}</div>
-                                <div style={{ fontSize: '0.6rem', color: 'var(--white-faint)', textTransform: 'capitalize' }}>{dim}</div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{m.full_name}</div>
+                            {hasAssessment && (
+                              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
+                                {['thinking', 'motivation', 'social'].map(dim => (
+                                  <div key={dim} style={{ fontSize: '0.68rem', color: 'var(--white-faint)' }}>
+                                    {dim}: <span style={{ color: scores[dim] < 2.5 ? 'var(--red)' : scores[dim] > 3.5 ? 'var(--green)' : 'var(--amber)', fontWeight: 600 }}>{scores[dim]?.toFixed(1)}</span>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
-                        ) : (
-                          <div style={{ fontSize: '0.72rem', color: 'var(--amber)', background: 'rgba(245,158,11,0.1)', padding: '0.25rem 0.65rem', borderRadius: '100px', border: '1px solid rgba(245,158,11,0.3)' }}>Assessment pending</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {checkin ? (
+                              <div style={{ padding: '0.2rem 0.65rem', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 600, background: `${checkinColor}15`, color: checkinColor, border: `1px solid ${checkinColor}30` }}>
+                                {checkin.word}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: '0.68rem', color: 'var(--white-faint)' }}>No check-in</div>
+                            )}
+                            {!hasAssessment && (
+                              <div style={{ fontSize: '0.68rem', color: 'var(--amber)', background: 'rgba(245,158,11,0.1)', padding: '0.2rem 0.65rem', borderRadius: '100px', border: '1px solid rgba(245,158,11,0.25)' }}>Pending</div>
+                            )}
+                          </div>
+                        </div>
+                        {hasAssessment && scores.motivation < 2.5 && (
+                          <div style={{ marginTop: '0.75rem', background: 'rgba(240,82,82,0.06)', border: '1px solid rgba(240,82,82,0.15)', borderRadius: '8px', padding: '0.5rem 0.875rem', fontSize: '0.75rem', color: 'var(--red)' }}>
+                            Low motivation signal — consider a 1:1 this week
+                          </div>
                         )}
                       </div>
-                      {hasAssessment && scores.motivation < 2.5 && (
-                        <div style={{ marginTop: '0.75rem', background: 'rgba(240,82,82,0.08)', border: '1px solid rgba(240,82,82,0.2)', borderRadius: '8px', padding: '0.65rem 0.875rem', fontSize: '0.78rem', color: 'var(--red)' }}>
-                          ⚠️ Inner motivation is low — consider a 1:1 conversation this week
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
         )}
-
         {/* MY PROFILE */}
         {tab === 'myprofile' && (
           <div className="fade-up">
