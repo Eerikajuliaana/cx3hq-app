@@ -114,6 +114,7 @@ Rewrite the message, then briefly explain why this works for them.`
     { id: 'coach', label: 'AI coach' },
     { id: 'translator', label: '💬 Comm translator' },
     { id: 'card', label: 'My user manual' },
+    { id: 'help', label: '❓ Help' },
   ]
 
   return (
@@ -288,6 +289,59 @@ Rewrite the message, then briefly explain why this works for them.`
               <button onClick={() => { navigator.clipboard?.writeText(window.location.href); alert('Profile link copied!') }} className="btn-primary" style={{ marginTop: '1.25rem', maxWidth: '180px' }}>
                 Share this card →
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* HELP */}
+        {tab === 'help' && (
+          <div className="fade-up">
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Your guide to CX3HQ</h1>
+              <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>How to get the most out of your profile and tools</p>
+            </div>
+
+            {/* GET STARTED */}
+            <div className="card" style={{ marginBottom: '1.25rem', borderColor: 'var(--teal-border)' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem' }}>Step-by-step — start here</div>
+              {[
+                { step: '01', title: 'Read your profile', desc: 'Go to "My profile" tab. Read each dimension carefully — Cognition, Communication, Capacity. These are not personality labels. They describe how you biologically process information and work best. Most people say it\'s the most accurate description of themselves they\'ve ever read.' },
+                { step: '02', title: 'Share your user manual', desc: 'Go to "My user manual" tab. Share this card with your manager and key colleagues. This is the most impactful thing you can do — it tells people exactly how to work with you at your best, without having to explain it yourself.' },
+                { step: '03', title: 'Use the AI coach', desc: 'The AI coach knows your full profile. Ask it anything — how to prepare for a meeting, how to handle a difficult conversation, how to stay focused, what your strongest working hours are. It gives you personalised advice based on how you actually work.' },
+                { step: '04', title: 'Use the Comm translator', desc: 'Before sending an important message to your manager or a colleague, use the Comm translator. Select the person, write your message, and get a version that works better for how they receive information. It saves time and prevents misunderstanding.' },
+                { step: '05', title: 'Do your weekly check-in', desc: 'Every week, tap one word that describes how you\'re feeling. It takes 3 seconds. Your manager sees this — it helps them support you before small things become big things. It\'s not about performance. It\'s about making sure you\'re not struggling alone.' },
+              ].map(s => (
+                <div key={s.step} style={{ display: 'flex', gap: '1rem', padding: '1rem 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--teal)', opacity: 0.3, width: '2.5rem', flexShrink: 0 }}>{s.step}</div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.35rem' }}>{s.title}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', lineHeight: 1.65, fontWeight: 300 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* FAQ */}
+            <div className="card" style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem' }}>Frequently asked questions</div>
+              {[
+                { q: 'Is this a personality test?', a: 'No. CX3HQ does not measure personality. It measures biological working styles — how your brain naturally processes information, communicates and performs. These are stable facts about how you work, not labels about who you are.' },
+                { q: 'Can my manager see all my answers?', a: 'Your manager sees your dimension scores — not your individual answers. They see how you score on Cognition, Communication and Capacity. This gives them enough to lead you better without exposing everything.' },
+                { q: 'What if my profile doesn\'t feel right?', a: 'Answer the assessment based on how you naturally work — not how you think you should work. If something still doesn\'t feel right, speak to your manager or contact us. Profiles can be discussed and refined.' },
+                { q: 'What is the weekly check-in for?', a: 'The one-word check-in gives your manager a real-time signal of how you are doing. It is not about performance or productivity — it is so they can support you before small things become big things. It is completely voluntary but highly recommended.' },
+                { q: 'What does the Comm translator actually do?', a: 'It rewrites your message for how the other person best receives information. For example, if your manager is a sequential thinker, it structures your message with clear steps. If a colleague is a big-picture thinker, it leads with the purpose first. Same message — better landing.' },
+              ].map((item, i) => (
+                <div key={i} style={{ padding: '1rem 0', borderBottom: i < 4 ? '1px solid var(--border)' : 'none' }}>
+                  <div style={{ fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.88rem' }}>❓ {item.q}</div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', lineHeight: 1.65, fontWeight: 300 }}>{item.a}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="card" style={{ background: 'var(--teal-dim)', borderColor: 'var(--teal-border)', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.4rem' }}>Have a question?</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', fontWeight: 300 }}>We respond within 48 hours.</div>
+              <a href="mailto:eerika@cx3hq.com" style={{ display: 'inline-block', marginTop: '0.75rem', background: 'var(--teal)', color: 'var(--black)', padding: '0.5rem 1.25rem', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none', fontFamily: 'var(--font-b)' }}>Contact us →</a>
             </div>
           </div>
         )}

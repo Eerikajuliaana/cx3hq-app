@@ -137,6 +137,7 @@ Rewrite the message, then explain in one sentence why this works for their profi
     { id: 'team', label: 'Team profiles' },
     { id: 'translator', label: '💬 Comm translator' },
     { id: 'coach', label: 'AI coach' },
+    { id: 'help', label: '❓ Help' },
   ]
 
   return (
@@ -169,11 +170,34 @@ Rewrite the message, then explain in one sentence why this works for their profi
               <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>Team: {team?.name} · {members.length} members</p>
             </div>
 
+            {/* ONBOARDING BANNER — shown when no members yet */}
+            {!loading && members.length === 0 && (
+              <div style={{ background: 'linear-gradient(135deg,var(--navy-mid),var(--navy-light))', border: '1px solid var(--teal-border)', borderRadius: '16px', padding: '2rem', marginBottom: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg,var(--teal),transparent)' }} />
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Welcome to CX3HQ 🎉</div>
+                <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>You're all set. Here's how to get started.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                  {[
+                    { step: '1', done: true, text: 'Create your team ✓ — done!' },
+                    { step: '2', done: false, text: 'Complete your own assessment — go to "My profile" tab' },
+                    { step: '3', done: false, text: 'Invite your team — share the invite code below' },
+                    { step: '4', done: false, text: 'Once they join — come back here and explore Team profiles, Comm translator and AI coach' },
+                  ].map(s => (
+                    <div key={s.step} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: s.done ? 'var(--teal)' : 'var(--navy-light)', border: `1px solid ${s.done ? 'var(--teal)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: s.done ? 'var(--black)' : 'var(--white-dim)', flexShrink: 0, marginTop: '0.1rem' }}>{s.done ? '✓' : s.step}</div>
+                      <div style={{ fontSize: '0.85rem', color: s.done ? 'var(--teal)' : 'var(--white)', lineHeight: 1.5 }}>{s.text}</div>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => setTab('help')} style={{ background: 'none', border: '1px solid var(--teal-border)', borderRadius: '8px', padding: '0.5rem 1rem', color: 'var(--teal)', fontSize: '0.78rem', fontFamily: 'var(--font-b)', cursor: 'pointer' }}>View full guide →</button>
+              </div>
+            )}
+
             {/* Team code */}
             <div className="card" style={{ marginBottom: '1.25rem', borderColor: 'var(--teal-border)', background: 'var(--teal-dim)' }}>
               <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>Team invite code</div>
               <div style={{ fontFamily: 'var(--font-d)', fontSize: '1rem', fontWeight: 700, color: 'var(--white)', marginBottom: '0.4rem' }}>{profile.team_id}</div>
-              <div style={{ fontSize: '0.78rem', color: 'rgba(0,212,170,0.7)' }}>Share this code with your team members so they can join</div>
+              <div style={{ fontSize: '0.78rem', color: 'rgba(0,212,170,0.7)' }}>Share this code with your team members so they can join and complete their assessment</div>
             </div>
 
             {/* Weekly checkin */}
@@ -480,6 +504,62 @@ Rewrite the message, then explain in one sentence why this works for their profi
                   {s}
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* HELP */}
+        {tab === 'help' && (
+          <div className="fade-up">
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h1 style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Manager guide</h1>
+              <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>Everything you need to get the most out of CX3HQ</p>
+            </div>
+
+            {/* GET STARTED */}
+            <div className="card" style={{ marginBottom: '1.25rem', borderColor: 'var(--teal-border)' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem' }}>Step-by-step — start here</div>
+              {[
+                { step: '01', title: 'Complete your own assessment', desc: 'Go to "My profile" tab and complete the 15-minute assessment. This maps your own thinking style, communication channels and capacity. You need to understand yourself before you can understand your team.' },
+                { step: '02', title: 'Invite your team', desc: 'Share your team invite code (on the Overview tab) with each team member. They create an account, select "I am a team member", enter the code, and complete their assessment. Takes 15 minutes.' },
+                { step: '03', title: 'Explore Team profiles', desc: 'Once your team has completed their assessments, go to "Team profiles". You will see each person\'s scores across all dimensions. Look especially at the Motivation score — below 2.5 needs attention.' },
+                { step: '04', title: 'Use the Comm translator daily', desc: 'Every time you write an important message, use the Comm translator first. Select the person, write your message, and get a version tailored to how they best receive information. This alone removes most miscommunication.' },
+                { step: '05', title: 'Ask the AI coach', desc: 'The AI coach knows your full team\'s profiles. Ask it anything — how to prepare for a difficult conversation, who might need support this week, how to improve collaboration. Try: "Give me a team summary".' },
+                { step: '06', title: 'Weekly check-in rhythm', desc: 'Every Monday, do your own check-in (one word on the Overview tab). Encourage your team to do the same. Over time, this gives you a real-time pulse on how the team is doing — before issues become visible.' },
+              ].map(s => (
+                <div key={s.step} style={{ display: 'flex', gap: '1rem', padding: '1rem 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--teal)', opacity: 0.3, width: '2.5rem', flexShrink: 0 }}>{s.step}</div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.35rem' }}>{s.title}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', lineHeight: 1.65, fontWeight: 300 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* FAQ */}
+            <div className="card" style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem' }}>Frequently asked questions</div>
+              {[
+                { q: 'What does CX3HQ actually measure?', a: 'CX3HQ measures three biological dimensions: Cognition (how you think and process information), Communication (how you best receive and share information), and Capacity (how you use energy and perform). These are not personality types — they are stable, biological working styles.' },
+                { q: 'How is this different from DISC or Myers-Briggs?', a: 'DISC and Myers-Briggs measure personality traits. CX3HQ measures how people biologically process information and work. The key difference: biological working styles are stable and actionable. They tell you not just who someone is, but exactly how to work with them — which communication format, which environment, which approach.' },
+                { q: 'What should I do if someone has a low motivation score?', a: 'A motivation score below 2.5 is a signal — not a judgment. It means the person\'s inner drive is currently low. The best first step is a quiet 1:1 conversation: ask how they are doing, what they enjoy about their work, what feels heavy. Do not ignore it — motivation drops silently before they become visible.' },
+                { q: 'How often should my team use the platform?', a: 'Minimum: weekly check-in (one word, 3 seconds). Recommended: manager uses Comm translator for every important message, checks AI coach weekly. Team members visit their profile and coach when they need guidance. The platform is designed to be lightweight — not another tool that takes time.' },
+                { q: 'Can team members see each other\'s profiles?', a: 'Team members see their own profile. Managers see the full team dashboard. This protects individual privacy while giving you the insight you need to lead well.' },
+                { q: 'What if a team member doesn\'t want to complete the assessment?', a: 'Participation works best when people understand what\'s in it for them — a personal profile, AI coaching, and better collaboration. Share their employee view with them first. Most people find it genuinely useful once they see it.' },
+              ].map((item, i) => (
+                <div key={i} style={{ padding: '1rem 0', borderBottom: i < 5 ? '1px solid var(--border)' : 'none' }}>
+                  <div style={{ fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.88rem' }}>❓ {item.q}</div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', lineHeight: 1.65, fontWeight: 300 }}>{item.a}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* CONTACT */}
+            <div className="card" style={{ background: 'var(--teal-dim)', borderColor: 'var(--teal-border)', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.4rem' }}>Have a question not covered here?</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--white-dim)', fontWeight: 300 }}>We respond within 48 hours.</div>
+              <a href="mailto:eerika@cx3hq.com" style={{ display: 'inline-block', marginTop: '0.75rem', background: 'var(--teal)', color: 'var(--black)', padding: '0.5rem 1.25rem', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 600, textDecoration: 'none', fontFamily: 'var(--font-b)' }}>Contact us →</a>
             </div>
           </div>
         )}
