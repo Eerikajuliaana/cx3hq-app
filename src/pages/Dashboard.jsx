@@ -535,37 +535,200 @@ Rewrite the message, then explain in one sentence why this works for their profi
         {/* TEAM PROFILES */}
         {tab === 'team' && (
           <div className="fade-up">
-            <h2 style={{ fontFamily: 'var(--font-d)', fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem' }}>Team profiles</h2>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontFamily: 'var(--font-d)', fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Team profiles</h2>
+              <p style={{ color: 'var(--white-dim)', fontSize: '0.85rem', fontWeight: 300 }}>Biological working styles — permanent and unique to each person. Use this to lead each person at their best.</p>
+            </div>
+
             {members.filter(m => m.assessments?.length > 0).map(m => {
               const scores = m.assessments?.[0]?.scores || {}
+              const checkin = teamCheckins[m.id]
+
+              // MISMATCH DETECTION
+              const mismatches = []
+              if (scores.motivation < 2.5) {
+                mismatches.push({
+                  level: 'red',
+                  title: 'Inner motivation critically low — burnout risk',
+                  body: `${m.full_name?.split(' ')[0]}'s inner drive is at ${(scores.motivation * 20).toFixed(0)}% and showing motivational fatigue signals. This is a current state, not a biological trait — their biological profile may be strong but something has created a mismatch between their natural needs and their current environment. Without a direct conversation, the risk of losing them grows significantly.`,
+                  action: 'Have a private 1:1 this week. Don\'t analyse — just listen. Ask: "What has changed?" and "What one thing would reconnect you to your work?"'
+                })
+              }
+              if (scores.sensory < 2.5 && scores.thinking > 3.5) {
+                mismatches.push({
+                  level: 'amber',
+                  title: 'Thinking-channel mismatch detected',
+                  body: `${m.full_name?.split(' ')[0]} is a big-picture thinker but has limited sensory channels — they need information delivered in one clear format that works for them. Receiving information in too many formats simultaneously creates overload.`,
+                  action: 'Find their strongest channel and use it consistently. Ask them: "What format helps you think best?"'
+                })
+              }
+              if (scores.social < 2 && scores.environment > 3.5) {
+                mismatches.push({
+                  level: 'amber',
+                  title: 'Environment-social mismatch',
+                  body: `${m.full_name?.split(' ')[0]} prefers working independently but needs movement and informal environment. If they are in back-to-back meetings in formal settings, this is draining their biological energy daily.`,
+                  action: 'Protect at least 2 hours of solo uninterrupted work time per day. Allow them to work from informal spaces.'
+                })
+              }
+              if (scores.structure < 2 && scores.social > 3.5) {
+                mismatches.push({
+                  level: 'amber',
+                  title: 'Needs more structure despite team orientation',
+                  body: `${m.full_name?.split(' ')[0]} performs best in teams but needs clear structure and regular feedback to feel confident. Without this, even great team collaboration feels uncertain for them.`,
+                  action: 'Give clear goals before team projects. Check in briefly after team meetings to confirm direction.'
+                })
+              }
+              if (checkin && ['Stuck', 'Tired'].includes(checkin.word) && scores.motivation > 3) {
+                mismatches.push({
+                  level: 'amber',
+                  title: `Checked in as "${checkin.word}" despite strong biological drive`,
+                  body: `${m.full_name?.split(' ')[0]}'s biological motivation profile is strong — they have genuine inner drive. But this week they feel ${checkin.word.toLowerCase()}. This is a situational signal — something specific this week is working against their natural strengths.`,
+                  action: 'A short conversation today: "What\'s making it feel heavy this week?" — not a performance conversation, just genuine interest.'
+                })
+              }
+
+              // COACHING TASKS
+              const coachingTasks = []
+              if (scores.thinking > 3.5) {
+                coachingTasks.push({
+                  task: 'Context-first briefing',
+                  desc: `Always start your briefings to ${m.full_name?.split(' ')[0]} with the why and the strategic goal — before any details. This activates their big-picture processing and makes them significantly more effective.`,
+                  duration: 'Every time you brief them'
+                })
+              }
+              if (scores.thinking < 2.5) {
+                coachingTasks.push({
+                  task: 'Written step-by-step instructions',
+                  desc: `Send ${m.full_name?.split(' ')[0]} written instructions with clear numbered steps for any complex task. Their sequential processing means written structure dramatically improves their performance.`,
+                  duration: 'For every new project'
+                })
+              }
+              if (scores.social > 3.5) {
+                coachingTasks.push({
+                  task: 'Assign a thinking partner',
+                  desc: `${m.full_name?.split(' ')[0]} performs significantly better when they have a peer to think through problems with. Assign them a thinking partner for the current project — or pair them with someone whose profile complements theirs.`,
+                  duration: 'This week'
+                })
+              }
+              if (scores.social < 2) {
+                coachingTasks.push({
+                  task: 'Protect solo deep work time',
+                  desc: `Block 2+ hours of uninterrupted solo time for ${m.full_name?.split(' ')[0]} each day. This is where their best work happens. Reducing meeting load by even 30% will noticeably improve their output quality.`,
+                  duration: 'This week — make it recurring'
+                })
+              }
+              if (scores.motivation < 2.5) {
+                coachingTasks.push({
+                  task: 'Mission reconnection conversation',
+                  desc: `Ask ${m.full_name?.split(' ')[0]} to spend 20 minutes writing or drawing what originally excited them about this work — what has changed, and what one thing would make their work feel meaningful again. Bring it to your next 1:1 and ask them to walk you through it. Do not analyse. Just listen.`,
+                  duration: 'Before end of this week'
+                })
+              }
+              if (scores.environment > 3.5) {
+                coachingTasks.push({
+                  task: 'Movement and informal environment',
+                  desc: `${m.full_name?.split(' ')[0]} concentrates better with background sounds and movement. If they are in a silent formal office all day, this is draining their biological energy. Allow walking meetings, informal work spaces or background music.`,
+                  duration: 'Ongoing'
+                })
+              }
+
+              // HEADLINE
+              const headline = (() => {
+                if (scores.motivation < 2.5) return `⚠️ Urgent attention needed — motivation critically low`
+                if (scores.thinking > 3.5 && scores.social > 3.5) return `Big-picture thinker · Team-oriented · Strong collaborative`
+                if (scores.thinking > 3.5 && scores.social < 2) return `Big-picture thinker · Independent · Needs autonomy`
+                if (scores.thinking < 2.5 && scores.social > 3.5) return `Sequential analyst · Team player · Detail + collaboration`
+                if (scores.thinking < 2.5 && scores.social < 2) return `Sequential analyst · Independent worker · High precision`
+                if (scores.motivation > 4) return `Strong inner drive · Self-directed · High performer`
+                return `Flexible working style · Adaptable`
+              })()
+
               return (
-                <div key={m.id} className="card" style={{ marginBottom: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--navy-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.8rem', color: 'var(--teal)' }}>
-                      {m.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{m.full_name}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--white-dim)' }}>{m.email}</div>
+                <div key={m.id} style={{ marginBottom: '1.5rem', background: 'var(--navy-mid)', border: `1px solid ${mismatches.some(x => x.level === 'red') ? 'rgba(240,82,82,0.3)' : 'var(--border)'}`, borderRadius: '16px', overflow: 'hidden' }}>
+
+                  {/* HEADER */}
+                  <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--navy-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.9rem', color: 'var(--teal)', flexShrink: 0 }}>
+                        {m.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                          <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '1rem' }}>{m.full_name}</div>
+                          {checkin && (
+                            <div style={{ padding: '0.15rem 0.65rem', borderRadius: '100px', fontSize: '0.68rem', fontWeight: 600, background: ['Stuck','Tired'].includes(checkin.word) ? 'rgba(240,82,82,0.12)' : ['Energised','Excited','Focused'].includes(checkin.word) ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', color: ['Stuck','Tired'].includes(checkin.word) ? '#F05252' : ['Energised','Excited','Focused'].includes(checkin.word) ? 'var(--green)' : 'var(--amber)', border: `1px solid ${['Stuck','Tired'].includes(checkin.word) ? 'rgba(240,82,82,0.25)' : ['Energised','Excited','Focused'].includes(checkin.word) ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'}` }}>
+                              {checkin.word} this week
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)', marginTop: '0.25rem' }}>{headline}</div>
+                      </div>
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+
+                  {/* SCORES */}
+                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                     {Object.entries(scores).map(([dim, score]) => (
                       <div key={dim} style={{ background: 'var(--navy-light)', borderRadius: '8px', padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--white-faint)', textTransform: 'capitalize', marginBottom: '0.25rem' }}>{dim}</div>
-                        <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', background: getScoreColor(score), width: `${(score / 5) * 100}%`, borderRadius: '2px' }} />
+                        <div style={{ fontSize: '0.62rem', color: 'var(--white-faint)', textTransform: 'capitalize', marginBottom: '0.3rem', letterSpacing: '0.06em' }}>{dim}</div>
+                        <div style={{ height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden', marginBottom: '0.3rem' }}>
+                          <div style={{ height: '100%', background: getScoreColor(score), width: `${(score/5)*100}%`, borderRadius: '2px' }} />
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: getScoreColor(score), fontWeight: 600, marginTop: '0.25rem' }}>{score?.toFixed(1)}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '0.68rem', color: getScoreColor(score), fontWeight: 700 }}>{score?.toFixed(1)}</div>
+                          <div style={{ fontSize: '0.6rem', color: 'var(--white-faint)' }}>{score > 3.5 ? 'High' : score < 2.5 ? 'Low' : 'Mid'}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
+
+                  {/* MISMATCHES */}
+                  {mismatches.length > 0 && (
+                    <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--white-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Signals & mismatches</div>
+                      {mismatches.map((mx, i) => (
+                        <div key={i} style={{ background: mx.level === 'red' ? 'rgba(240,82,82,0.06)' : 'rgba(245,158,11,0.06)', border: `1px solid ${mx.level === 'red' ? 'rgba(240,82,82,0.2)' : 'rgba(245,158,11,0.2)'}`, borderRadius: '10px', padding: '1rem', marginBottom: '0.5rem' }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.82rem', color: mx.level === 'red' ? '#F05252' : 'var(--amber)', marginBottom: '0.4rem' }}>
+                            {mx.level === 'red' ? '🔴' : '⚡'} {mx.title}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)', lineHeight: 1.65, marginBottom: '0.5rem' }}>{mx.body}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--white)', fontWeight: 500 }}>→ {mx.action}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* COACHING TASKS */}
+                  {coachingTasks.length > 0 && (
+                    <div style={{ padding: '1rem 1.5rem' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>💡 Coaching tasks — based on their profile</div>
+                      {coachingTasks.map((ct, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '0.75rem', padding: '0.75rem 0', borderBottom: i < coachingTasks.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--teal)', flexShrink: 0, marginTop: '0.4rem' }} />
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.25rem' }}>{ct.task}</div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)', lineHeight: 1.6, marginBottom: '0.2rem' }}>{ct.desc}</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--teal)', fontWeight: 500 }}>When: {ct.duration}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* NO MISMATCHES */}
+                  {mismatches.length === 0 && coachingTasks.length === 0 && (
+                    <div style={{ padding: '1rem 1.5rem', fontSize: '0.82rem', color: 'var(--green)' }}>
+                      ✓ Well aligned — no conflicts detected. Keep doing what you are doing.
+                    </div>
+                  )}
+
                 </div>
               )
             })}
+
             {members.filter(m => !m.assessments?.length).length > 0 && (
-              <div style={{ color: 'var(--white-dim)', fontSize: '0.82rem', marginTop: '1rem' }}>
-                {members.filter(m => !m.assessments?.length).length} member(s) haven't completed their assessment yet.
+              <div style={{ color: 'var(--white-dim)', fontSize: '0.82rem', padding: '1rem', background: 'var(--navy-mid)', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                {members.filter(m => !m.assessments?.length).length} member(s) haven't completed their assessment yet — invite them to join.
               </div>
             )}
           </div>
