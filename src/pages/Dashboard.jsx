@@ -377,115 +377,91 @@ Rewrite the message, then explain in one sentence why this works for their profi
             </div>
             {myAssessment && (() => {
               const s = myAssessment.scores || {}
-              const dimData = {
-                thinking: {
-                  title: s.thinking > 3.5 ? 'Big-picture thinker' : s.thinking < 2.5 ? 'Sequential analyst' : 'Flexible thinker',
-                  desc: s.thinking > 3.5
-                    ? 'You process information simultaneously — you need the why and the big picture before you can engage with details. This is biological, not a preference.'
-                    : s.thinking < 2.5
-                    ? 'You process information sequentially — step by step, logically and analytically. You need clear structure and details to perform at your best.'
-                    : 'You can switch between big-picture and sequential thinking. A real strength when leading diverse teams.',
-                  tips: s.thinking > 3.5
-                    ? ['Always start with the why and strategic context before diving into details', 'Your instinct to see patterns and connections is a leadership superpower — use it', 'When you feel lost in details, zoom out: what is the real goal here?']
-                    : s.thinking < 2.5
-                    ? ['Create written lists and structured plans before starting complex tasks', 'Ask for written confirmation of decisions — it helps you process and retain', 'Give yourself time to think through all options before committing']
-                    : ['You bridge between big-picture and detail thinkers — use this in team meetings', 'Adapt your communication style to who you are talking to']
-                },
-                sensory: {
-                  title: s.sensory > 3.5 ? 'Multi-channel learner' : s.sensory < 2.5 ? 'Focused channel learner' : 'Selective channel learner',
-                  desc: s.sensory > 3.5
-                    ? 'You absorb information best through multiple channels simultaneously. Verbal, visual and hands-on learning all work well for you.'
-                    : 'You have one or two dominant sensory channels. Use these channels deliberately and reduce others in demanding situations.',
-                  tips: s.sensory > 3.5
-                    ? ['Combine verbal and visual when presenting to others — it lands better for you too', 'In demanding situations, reduce weaker channels to conserve energy', 'Your multi-channel strength helps you connect with diverse learners']
-                    : ['Identify your top 1-2 channels and lean into them fully', 'In demanding tasks, actively reduce your weakest channel — it costs energy', 'Ask for information in your preferred format when possible']
-                },
-                environment: {
-                  title: s.environment > 3.5 ? 'Movement & informality' : s.environment < 2.5 ? 'Structured environment' : 'Flexible environment',
-                  desc: s.environment > 3.5
-                    ? 'You concentrate better with background sounds and movement. Silence and complete stillness reduce your performance. This is biological — not restlessness.'
-                    : s.environment < 2.5
-                    ? 'You perform best in quiet, structured, formal environments. Noise and disorder genuinely disrupt your concentration.'
-                    : 'You adapt well to different environments. Use this flexibility to your advantage.',
-                  tips: s.environment > 3.5
-                    ? ['Allow yourself to walk or stand during thinking — your brain works better when your body moves', 'Background music or ambient noise helps you concentrate — use it deliberately', 'Protect your peak performance time for your most important work']
-                    : s.environment < 2.5
-                    ? ['Create quiet time blocks in your calendar for deep work', 'Use noise-cancelling headphones when your environment is noisy', 'Organise your space before starting demanding tasks — it helps your brain']
-                    : ['You can work in varied environments — use this when managing in different contexts']
-                },
-                social: {
-                  title: s.social > 3.5 ? 'Team & pair oriented' : s.social < 2.5 ? 'Independent worker' : 'Flexible collaborator',
-                  desc: s.social > 3.5
-                    ? 'You perform best when collaborating. You think better with others around and gain energy from team interaction.'
-                    : s.social < 2.5
-                    ? 'You do your best thinking and most productive work alone. Being managed on process rather than outcomes costs you significant energy.'
-                    : 'You work well both alone and with others depending on the task.',
-                  tips: s.social > 3.5
-                    ? ['Build in regular peer conversations — they energise and clarify your thinking', 'Use a thinking partner when tackling complex problems', 'Team buy-in matters to you — invest time in alignment before execution']
-                    : s.social < 2.5
-                    ? ['Protect solo deep work time in your calendar — it is where you are most productive', 'Communicate your need for autonomy clearly to those you work with', 'Deliver on outcomes and let your results speak — that is your natural mode']
-                    : ['Flex between solo and collaborative modes based on the task type']
-                },
-                motivation: {
-                  title: s.motivation > 3.5 ? 'Strong inner drive' : s.motivation < 2.5 ? '⚠️ Inner motivation needs attention' : 'Moderate inner drive',
-                  desc: s.motivation > 3.5
-                    ? 'You are intrinsically motivated — you push yourself beyond expectations because it matters to you personally. External rewards are not what drives you.'
-                    : s.motivation < 2.5
-                    ? 'Your inner motivation is currently low. This is a current state — not permanent. Something in your role or environment may be misaligned with your natural strengths.'
-                    : 'Your inner drive is moderate. There may be room to reconnect with what genuinely excites you about your work.',
-                  tips: s.motivation > 3.5
-                    ? ['Your self-drive is your greatest performance asset — protect it by staying connected to purpose', 'Notice when energy drops — it is an early signal worth investigating', 'Do not let operational demands crowd out the work that genuinely energises you']
-                    : s.motivation < 2.5
-                    ? ['Reconnect with your original reasons for doing this work — what excited you before?', 'Identify which parts of your role use your natural strengths and which work against them', 'Consider having an honest conversation with someone you trust about what needs to change']
-                    : ['Find one area of your work that genuinely excites you and protect time for it', 'Notice what energises vs drains you — map it and act on it']
-                },
-                structure: {
-                  title: s.structure > 3.5 ? 'Highly adaptable' : s.structure < 2.5 ? 'Needs clear structure' : 'Moderately structured',
-                  desc: s.structure > 3.5
-                    ? 'You adapt quickly to change and ambiguity. You are comfortable setting your own direction and working without close oversight.'
-                    : s.structure < 2.5
-                    ? 'You perform best with clear goals, structured processes and regular feedback. Ambiguity and sudden changes genuinely cost you energy.'
-                    : 'You work well with moderate structure — clear goals but flexibility in how you get there.',
-                  tips: s.structure > 3.5
-                    ? ['Use your adaptability to lead change — others will follow your calm', 'Set your own goals and structures — you work best with self-imposed frameworks', 'Be mindful that others on your team may need more structure than you do']
-                    : s.structure < 2.5
-                    ? ['Create your own written structures when they are not provided — it reduces stress', 'Ask for clear goals and timelines at the start of every project', 'Regular check-ins with yourself (weekly review) help you stay on track']
-                    : ['Balance structure and flexibility based on the situation', 'Provide clear goals to your team while allowing flexibility in execution']
-                }
-              }
               return (
                 <div>
-                  {Object.entries(s).map(([dim, score]) => {
-                    const d = dimData[dim]
-                    if (!d) return null
-                    return (
-                      <div key={dim} className="card" style={{ marginBottom: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.75rem' }}>
-                          <div>
-                            <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>{dim}</div>
-                            <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '1rem' }}>{d.title}</div>
-                          </div>
-                          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'var(--font-d)', color: getScoreColor(score) }}>{score?.toFixed(1)}</div>
-                            <div style={{ fontSize: '0.6rem', color: 'var(--white-faint)' }}>out of 5</div>
-                          </div>
-                        </div>
-                        <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden', marginBottom: '0.875rem' }}>
-                          <div style={{ height: '100%', background: getScoreColor(score), width: `${(score/5)*100}%`, borderRadius: '2px' }} />
-                        </div>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--white-dim)', lineHeight: 1.65, fontWeight: 300, marginBottom: '0.875rem' }}>{d.desc}</p>
-                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
-                          <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>How to use this</div>
-                          {d.tips.map((tip, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.35rem', fontSize: '0.8rem', color: 'var(--white-dim)', lineHeight: 1.5 }}>
-                              <span style={{ color: 'var(--teal)', flexShrink: 0 }}>→</span>
-                              <span>{tip}</span>
+                  {/* BIOLOGICAL DIMENSIONS — AXIS */}
+                  <div style={{ marginBottom: '0.75rem' }}>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>Biological working style — permanent & unique to you</div>
+                    <div style={{ marginBottom: '0.5rem', padding: '0.75rem', background: 'rgba(0,212,170,0.06)', borderRadius: '8px', border: '1px solid var(--teal-border)', fontSize: '0.72rem', color: 'var(--teal)', lineHeight: 1.6 }}>
+                      ℹ️ These dimensions are shown as a spectrum — neither end is better or worse. They describe how you naturally work, not how good you are as a leader.
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                      {[
+                        { dim: 'thinking', label: 'Thinking & Processing', leftLabel: 'Sequential', rightLabel: 'Simultaneous', leftDesc: 'Step-by-step, detail-first, analytical precision', rightDesc: 'Big-picture, pattern recognition, context-first', score: s.thinking,
+                          strengthLabel: s.thinking < 2.5 ? 'Sequential analyst — your strength is precision, structure and analytical detail' : s.thinking > 3.5 ? 'Big-picture thinker — your strength is vision, patterns and strategic context' : 'Flexible thinker — you bridge detail and overview',
+                          tips: s.thinking > 3.5 ? ['Always start briefings with the why and strategic context — before any details', 'Your pattern recognition is a leadership superpower — use it proactively', 'Delegate detailed execution to sequential thinkers on your team'] : s.thinking < 2.5 ? ['Create written agendas and structured plans before complex discussions', 'Ask for written summaries after meetings — it helps you process and retain', 'When leading big-picture thinkers, give context first — then details'] : ['You bridge big-picture and detail thinkers — use this in team meetings', 'Adapt your communication style deliberately based on who you are talking to']
+                        },
+                        { dim: 'sensory', label: 'Sensory Channels', leftLabel: 'Focused', rightLabel: 'Multi-channel', leftDesc: 'One or two dominant channels — deep processing', rightDesc: 'Multiple channels active simultaneously', score: s.sensory,
+                          strengthLabel: s.sensory < 2.5 ? 'Focused channel learner — you go deep in your strongest channel' : s.sensory > 3.5 ? 'Multi-channel learner — you absorb through many formats simultaneously' : 'Selective learner — a few strong channels work well',
+                          tips: s.sensory > 3.5 ? ['Use multiple formats in team meetings — verbal + visual + written', 'In high-load situations, reduce to your strongest channel to conserve energy', 'Your multi-channel strength helps you connect with team members who learn differently'] : ['Identify your top channel and request information in that format', 'In team meetings, ask for both verbal AND written summaries', 'Reduce weaker channels in demanding situations — it saves cognitive energy']
+                        },
+                        { dim: 'social', label: 'Social Working Style', leftLabel: 'Independent', rightLabel: 'Collaborative', leftDesc: 'Best thinking happens alone — autonomy drives performance', rightDesc: 'Best thinking happens with others — collaboration energises', score: s.social,
+                          strengthLabel: s.social < 2.5 ? 'Independent leader — you produce your best thinking with autonomy and solo time' : s.social > 3.5 ? 'Collaborative leader — you lead and think best when connected with others' : 'Flexible collaborator — you adapt between solo and team work',
+                          tips: s.social > 3.5 ? ['Build regular team touchpoints — they energise your leadership', 'Use a thinking partner for complex strategic decisions', 'Remember: some team members need solo time to do their best work'] : s.social < 2.5 ? ['Protect solo strategic thinking time in your calendar — this is where your best leadership happens', 'Delegate team facilitation when possible — it costs you energy', 'One-on-one conversations are more effective for you than group discussions'] : ['Match your working mode to the task — solo for strategy, collaborative for alignment']
+                        },
+                        { dim: 'environment', label: 'Environment & Performance Mode', leftLabel: 'Structured & quiet', rightLabel: 'Movement & informal', leftDesc: 'Analytical mode — quiet, still, formal settings activate best performance', rightDesc: 'Creative mode — movement, background sounds, informal settings activate best performance', score: s.environment,
+                          strengthLabel: s.environment < 2.5 ? 'Analytical performance mode — quiet structured environments activate your best leadership' : s.environment > 3.5 ? 'Creative performance mode — movement and informal environments activate your best leadership' : 'Adaptable — you perform well across different environments',
+                          tips: s.environment > 3.5 ? ['Take walking meetings for complex strategic conversations', 'Work from informal spaces when you need creative thinking', 'Avoid back-to-back formal meetings — it locks you out of your best performance mode'] : s.environment < 2.5 ? ['Block quiet uninterrupted time for your most important leadership work', 'Prepare for demanding conversations in a quiet space first', 'Organise your space and agenda before high-stakes meetings — it activates your best mode'] : ['Vary your environment based on the type of work — strategy in quiet, collaboration in open']
+                        }
+                      ].map(({ dim, label, leftLabel, rightLabel, leftDesc, rightDesc, score, strengthLabel, tips }) => {
+                        const position = ((score - 1) / 4) * 100
+                        return (
+                          <div key={dim} className="card" style={{ padding: '1.25rem' }}>
+                            <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>{label}</div>
+                            <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '1rem' }}>{strengthLabel}</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--white-dim)', marginBottom: '0.4rem' }}>
+                              <span style={{ fontWeight: 600, color: position < 40 ? 'var(--teal)' : 'var(--white-dim)' }}>{leftLabel}</span>
+                              <span style={{ fontWeight: 600, color: position > 60 ? 'var(--teal)' : 'var(--white-dim)' }}>{rightLabel}</span>
                             </div>
-                          ))}
+                            <div style={{ position: 'relative', height: '6px', background: 'var(--navy-light)', borderRadius: '3px', border: '1px solid var(--border)', marginBottom: '0.4rem' }}>
+                              <div style={{ position: 'absolute', left: `calc(${position}% - 8px)`, top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--teal)', border: '2px solid var(--black)', boxShadow: '0 0 8px rgba(0,212,170,0.4)' }} />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--white-faint)', fontStyle: 'italic', marginBottom: '1rem' }}>
+                              <span style={{ maxWidth: '45%' }}>{leftDesc}</span>
+                              <span style={{ maxWidth: '45%', textAlign: 'right' }}>{rightDesc}</span>
+                            </div>
+                            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
+                              <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>How to use this as a leader</div>
+                              {tips.map((tip, i) => (
+                                <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.3rem', fontSize: '0.78rem', color: 'var(--white-dim)', lineHeight: 1.5 }}>
+                                  <span style={{ color: 'var(--teal)', flexShrink: 0 }}>→</span>
+                                  <span>{tip}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* LEARNED DIMENSIONS */}
+                    <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>Current state — reflects how you feel right now</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                      {[
+                        { dim: 'motivation', label: 'Inner Motivation', score: s.motivation,
+                          desc: s.motivation > 3.5 ? 'Strong inner drive — you push yourself beyond expectations because it matters to you personally.' : s.motivation < 2.5 ? '⚠️ Your inner motivation is currently low. This is a current state — not permanent. Consider what may be misaligned with your natural strengths.' : 'Moderate inner drive — there may be room to reconnect with what genuinely excites you.',
+                          color: s.motivation > 3.5 ? 'var(--green)' : s.motivation < 2.5 ? 'var(--red)' : 'var(--amber)'
+                        },
+                        { dim: 'structure', label: 'Structure & Adaptability', score: s.structure,
+                          desc: s.structure > 3.5 ? 'Highly adaptable — you handle change and ambiguity well. You work best when you set your own direction.' : s.structure < 2.5 ? 'You perform best with clear goals, structured processes and regular feedback.' : 'Moderately structured — clear goals but flexibility in how you get there.',
+                          color: 'var(--teal)'
+                        }
+                      ].map(({ dim, label, score, desc, color }) => (
+                        <div key={dim} className="card">
+                          <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>{label}</div>
+                          <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.4rem' }}>
+                            <div style={{ height: '100%', background: color, width: `${(score/5)*100}%`, borderRadius: '3px' }} />
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--white-dim)', marginBottom: '0.75rem' }}>
+                            <span>Low</span>
+                            <span style={{ color, fontWeight: 700 }}>{score?.toFixed(1)} / 5</span>
+                            <span>High</span>
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)', lineHeight: 1.6, fontWeight: 300 }}>{desc}</div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )
             })()}
