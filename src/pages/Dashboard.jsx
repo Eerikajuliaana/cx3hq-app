@@ -700,7 +700,7 @@ Rewrite the message, then explain in one sentence why this works for their profi
                     </div>
 
                     <div style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Current state</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
                       {[
                         { dim: 'motivation', label: 'Motivation', score: scores.motivation },
                         { dim: 'structure', label: 'Structure', score: scores.structure },
@@ -714,6 +714,80 @@ Rewrite the message, then explain in one sentence why this works for their profi
                         </div>
                       ))}
                     </div>
+
+                    {/* SENSORY CHANNELS */}
+                    {(() => {
+                      const answers = m.assessments?.[0]?.answers || {}
+                      const CHANNELS = [
+                        { id: 7,  label: 'Listening', icon: '👂', hemisphere: 'left', importantIfLow: true },
+                        { id: 8,  label: 'Speaking', icon: '🗣', hemisphere: 'left', importantIfLow: false },
+                        { id: 9,  label: 'Inner Speech', icon: '💭', hemisphere: 'left', importantIfLow: false },
+                        { id: 12, label: 'Reading', icon: '📖', hemisphere: 'left', importantIfLow: true },
+                        { id: 10, label: 'Visual/Charts', icon: '👁', hemisphere: 'right', importantIfLow: true },
+                        { id: 11, label: 'Imagination', icon: '🎨', hemisphere: 'right', importantIfLow: false },
+                        { id: 13, label: 'Hands-on', icon: '✋', hemisphere: 'right', importantIfLow: false },
+                        { id: 14, label: 'Handwriting', icon: '✍️', hemisphere: 'right', importantIfLow: false },
+                        { id: 15, label: 'Learning by Doing', icon: '⚡', hemisphere: 'right', importantIfLow: false },
+                        { id: 16, label: 'Intuition', icon: '🔮', hemisphere: 'right', importantIfLow: false },
+                      ]
+                      const withScores = CHANNELS.map(ch => ({ ...ch, score: answers[ch.id] || 3 }))
+                      const strong = withScores.filter(c => c.score >= 3.5).sort((a,b) => b.score - a.score)
+                      const importantLow = withScores.filter(c => c.score < 2.5 && c.importantIfLow)
+                      const leftStrong = strong.filter(c => c.hemisphere === 'left')
+                      const rightStrong = strong.filter(c => c.hemisphere === 'right')
+
+                      if (strong.length === 0) return null
+
+                      return (
+                        <div>
+                          <div style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Sensory channels</div>
+
+                          {leftStrong.length > 0 && (
+                            <div style={{ marginBottom: '0.4rem' }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--white-faint)', marginBottom: '0.25rem' }}>Left hemisphere</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                {leftStrong.map(ch => (
+                                  <div key={ch.id} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(0,212,170,0.08)', border: '1px solid var(--teal-border)', borderRadius: '6px', padding: '0.25rem 0.6rem' }}>
+                                    <span style={{ fontSize: '0.75rem' }}>{ch.icon}</span>
+                                    <span style={{ fontSize: '0.65rem', color: 'var(--teal)', fontWeight: 600 }}>{ch.label}</span>
+                                    <span style={{ fontSize: '0.6rem', color: 'var(--white-faint)' }}>{ch.score.toFixed(1)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {rightStrong.length > 0 && (
+                            <div style={{ marginBottom: '0.5rem' }}>
+                              <div style={{ fontSize: '0.58rem', color: 'var(--white-faint)', marginBottom: '0.25rem' }}>Right hemisphere</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                {rightStrong.map(ch => (
+                                  <div key={ch.id} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(0,168,255,0.08)', border: '1px solid rgba(0,168,255,0.2)', borderRadius: '6px', padding: '0.25rem 0.6rem' }}>
+                                    <span style={{ fontSize: '0.75rem' }}>{ch.icon}</span>
+                                    <span style={{ fontSize: '0.65rem', color: '#00A8FF', fontWeight: 600 }}>{ch.label}</span>
+                                    <span style={{ fontSize: '0.6rem', color: 'var(--white-faint)' }}>{ch.score.toFixed(1)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {importantLow.length > 0 && (
+                            <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '6px', padding: '0.5rem 0.75rem' }}>
+                              <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--amber)', marginBottom: '0.25rem' }}>⚠️ Important for how you communicate</div>
+                              {importantLow.map(ch => (
+                                <div key={ch.id} style={{ fontSize: '0.68rem', color: 'var(--white-dim)' }}>
+                                  {ch.icon} {ch.label} is low —
+                                  {ch.id === 7 && ' avoid verbal-only. Add written or visual.'}
+                                  {ch.id === 12 && ' avoid long texts. Use verbal or visual instead.'}
+                                  {ch.id === 10 && ' charts may not land. Use verbal or hands-on.'}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </div>
 
                   {/* MISMATCHES */}
