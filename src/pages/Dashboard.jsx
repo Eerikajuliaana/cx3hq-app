@@ -642,20 +642,47 @@ Rewrite the message, then explain in one sentence why this works for their profi
                     </div>
                   </div>
 
-                  {/* SCORES */}
-                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                    {Object.entries(scores).map(([dim, score]) => (
-                      <div key={dim} style={{ background: 'var(--navy-light)', borderRadius: '8px', padding: '0.75rem' }}>
-                        <div style={{ fontSize: '0.62rem', color: 'var(--white-faint)', textTransform: 'capitalize', marginBottom: '0.3rem', letterSpacing: '0.06em' }}>{dim}</div>
-                        <div style={{ height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden', marginBottom: '0.3rem' }}>
-                          <div style={{ height: '100%', background: getScoreColor(score), width: `${(score/5)*100}%`, borderRadius: '2px' }} />
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* SCORES — AXIS FOR BIOLOGICAL, SCALE FOR LEARNED */}
+                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Biological working style</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                      {[
+                        { dim: 'thinking', leftLabel: 'Sequential', rightLabel: 'Simultaneous', score: scores.thinking },
+                        { dim: 'sensory', leftLabel: 'Focused', rightLabel: 'Multi-channel', score: scores.sensory },
+                        { dim: 'social', leftLabel: 'Independent', rightLabel: 'Collaborative', score: scores.social },
+                        { dim: 'environment', leftLabel: 'Structured', rightLabel: 'Movement', score: scores.environment },
+                      ].map(({ dim, leftLabel, rightLabel, score }) => {
+                        const position = ((score - 1) / 4) * 100
+                        return (
+                          <div key={dim}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6rem', color: 'var(--white-faint)', marginBottom: '0.2rem', textTransform: 'capitalize' }}>
+                              <span style={{ color: position < 40 ? 'var(--teal)' : 'var(--white-faint)', fontWeight: position < 40 ? 600 : 400 }}>{leftLabel}</span>
+                              <span style={{ color: 'var(--white-faint)', fontSize: '0.58rem' }}>{dim}</span>
+                              <span style={{ color: position > 60 ? 'var(--teal)' : 'var(--white-faint)', fontWeight: position > 60 ? 600 : 400 }}>{rightLabel}</span>
+                            </div>
+                            <div style={{ position: 'relative', height: '4px', background: 'var(--navy-light)', borderRadius: '2px', border: '1px solid var(--border)' }}>
+                              <div style={{ position: 'absolute', left: `calc(${position}% - 6px)`, top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', borderRadius: '50%', background: 'var(--teal)', border: '2px solid var(--black)', boxShadow: '0 0 6px rgba(0,212,170,0.4)' }} />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Current state</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      {[
+                        { dim: 'motivation', label: 'Motivation', score: scores.motivation },
+                        { dim: 'structure', label: 'Structure', score: scores.structure },
+                      ].map(({ dim, label, score }) => (
+                        <div key={dim} style={{ background: 'var(--navy-light)', borderRadius: '6px', padding: '0.5rem 0.75rem' }}>
+                          <div style={{ fontSize: '0.6rem', color: 'var(--white-faint)', marginBottom: '0.2rem' }}>{label}</div>
+                          <div style={{ height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden', marginBottom: '0.2rem' }}>
+                            <div style={{ height: '100%', background: getScoreColor(score), width: `${(score/5)*100}%`, borderRadius: '2px' }} />
+                          </div>
                           <div style={{ fontSize: '0.68rem', color: getScoreColor(score), fontWeight: 700 }}>{score?.toFixed(1)}</div>
-                          <div style={{ fontSize: '0.6rem', color: 'var(--white-faint)' }}>{score > 3.5 ? 'High' : score < 2.5 ? 'Low' : 'Mid'}</div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   {/* MISMATCHES */}
