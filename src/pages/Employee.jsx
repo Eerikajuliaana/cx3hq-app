@@ -1,6 +1,47 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
+// Sensory channel definitions
+const SENSORY_CHANNELS = {
+  // LEFT HEMISPHERE
+  listening:    { id: 7,  label: 'Listening', hemisphere: 'left', icon: '👂', desc: 'Absorbs information through hearing and verbal explanation' },
+  speaking:     { id: 8,  label: 'Speaking & Discussion', hemisphere: 'left', icon: '🗣', desc: 'Processes and clarifies thinking through conversation' },
+  inner_speech: { id: 9,  label: 'Inner Speech', hemisphere: 'left', icon: '💭', desc: 'Uses internal monologue to work through complex ideas' },
+  reading:      { id: 12, label: 'Reading', hemisphere: 'left', icon: '📖', desc: 'Takes in information most effectively through written text' },
+  // RIGHT HEMISPHERE
+  visual:       { id: 10, label: 'Visual / Charts', hemisphere: 'right', icon: '👁', desc: 'Understands instantly through diagrams, charts and visual overviews' },
+  imagination:  { id: 11, label: 'Visual Imagination', hemisphere: 'right', icon: '🎨', desc: 'Creates mental images and pictures when processing information' },
+  hands:        { id: 13, label: 'Hands-on', hemisphere: 'right', icon: '✋', desc: 'Concentrates and retains better when physically handling objects' },
+  handwriting:  { id: 14, label: 'Handwriting', hemisphere: 'right', icon: '✍️', desc: 'Processes and remembers significantly better when writing by hand' },
+  doing:        { id: 15, label: 'Learning by Doing', hemisphere: 'right', icon: '⚡', desc: 'Learns new skills most effectively through direct hands-on experience' },
+  intuition:    { id: 16, label: 'Intuition', hemisphere: 'right', icon: '🔮', desc: 'Gets reliable inner feelings or gut sense about situations and people' },
+}
+
+// Channels that are important to flag if LOW
+const IMPORTANT_IF_LOW = ['listening', 'reading', 'visual']
+
+function analyzeSensoryChannels(answers) {
+  if (!answers) return { strong: [], moderate: [], low: [], byHemisphere: { left: [], right: [] } }
+  
+  const channelScores = Object.entries(SENSORY_CHANNELS).map(([key, ch]) => ({
+    key,
+    ...ch,
+    score: answers[ch.id] || 3
+  }))
+
+  const strong = channelScores.filter(c => c.score >= 3.5).sort((a, b) => b.score - a.score)
+  const moderate = channelScores.filter(c => c.score >= 2.5 && c.score < 3.5)
+  const low = channelScores.filter(c => c.score < 2.5)
+  const importantLow = low.filter(c => IMPORTANT_IF_LOW.includes(c.key))
+
+  const byHemisphere = {
+    left: strong.filter(c => c.hemisphere === 'left'),
+    right: strong.filter(c => c.hemisphere === 'right')
+  }
+
+  return { strong, moderate, low, importantLow, byHemisphere, all: channelScores }
+}
+
 export default function Employee({ profile }) {
   const [tab, setTab] = useState('profile')
   const [assessment, setAssessment] = useState(null)
@@ -245,6 +286,77 @@ Rewrite the message, then briefly explain why this works for them.`
                   )
                 })}
               </div>
+
+              {/* SENSORY CHANNEL BREAKDOWN */}
+              {(() => {
+                const answers = assessment?.answers || {}
+                const { strong, importantLow, byHemisphere } = analyzeSensoryChannels(answers)
+                return (
+                  <div className="card" style={{ marginTop: '0.75rem', padding: '1.25rem' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Your sensory channels — individual strengths</div>
+
+                    {/* LEFT HEMISPHERE STRONG */}
+                    {byHemisphere.left.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '0.62rem', color: 'var(--white-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>Left hemisphere — sequential processing</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                          {byHemisphere.left.map(ch => (
+                            <div key={ch.key} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,212,170,0.1)', border: '1px solid var(--teal-border)', borderRadius: '8px', padding: '0.4rem 0.75rem' }}>
+                              <span style={{ fontSize: '0.9rem' }}>{ch.icon}</span>
+                              <div>
+                                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--teal)' }}>{ch.label}</div>
+                                <div style={{ fontSize: '0.62rem', color: 'var(--white-dim)' }}>{ch.score?.toFixed(1)} / 5</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* RIGHT HEMISPHERE STRONG */}
+                    {byHemisphere.right.length > 0 && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '0.62rem', color: 'var(--white-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>Right hemisphere — simultaneous processing</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                          {byHemisphere.right.map(ch => (
+                            <div key={ch.key} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,168,255,0.08)', border: '1px solid rgba(0,168,255,0.2)', borderRadius: '8px', padding: '0.4rem 0.75rem' }}>
+                              <span style={{ fontSize: '0.9rem' }}>{ch.icon}</span>
+                              <div>
+                                <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#00A8FF' }}>{ch.label}</div>
+                                <div style={{ fontSize: '0.62rem', color: 'var(--white-dim)' }}>{ch.score?.toFixed(1)} / 5</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* IMPORTANT LOW CHANNELS */}
+                    {importantLow.length > 0 && (
+                      <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '8px', padding: '0.875rem' }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>⚠️ Good to know</div>
+                        {importantLow.map(ch => (
+                          <div key={ch.key} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                            <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>{ch.icon}</span>
+                            <div>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--amber)' }}>{ch.label} is a weaker channel — </span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--white-dim)' }}>
+                                {ch.key === 'listening' && 'verbal-only instructions may not land well. Combine with written or visual support.'}
+                                {ch.key === 'reading' && 'long written documents may not be the most effective format. Prefer verbal or visual communication.'}
+                                {ch.key === 'visual' && 'charts and diagrams may not be the clearest format. Prefer verbal explanation or hands-on approaches.'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {strong.length === 0 && (
+                      <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)' }}>Complete your assessment to see your individual sensory channels.</div>
+                    )}
+                  </div>
+                )
+              })()}
             </div>
 
             {/* LEARNED DIMENSIONS — SCALE */}
