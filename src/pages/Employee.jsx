@@ -75,12 +75,38 @@ export default function Employee({ profile }) {
     setChatLoading(true)
 
     const scores = assessment?.scores || {}
+    const answers = assessment?.answers || {}
+
+    // Build sensory channel context
+    const channelContext = Object.entries(SENSORY_CHANNELS).map(([key, ch]) => {
+      const score = answers[ch.id] || 3
+      const level = score >= 3.5 ? 'STRONG' : score < 2.5 ? 'LOW' : 'moderate'
+      const important = IMPORTANT_IF_LOW.includes(key) && score < 2.5 ? ' ⚠️ important to note' : ''
+      return `${ch.label} (${ch.hemisphere} hemisphere): ${score.toFixed(1)} — ${level}${important}`
+    }).join('\n')
+
     const systemPrompt = `You are CX3HQ personal AI coach for ${profile.full_name}.
-Their assessment scores: thinking=${scores.thinking?.toFixed(1) || '3'}, sensory avg=${scores.sensory?.toFixed(1) || '3'}, motivation=${scores.motivation?.toFixed(1) || '3'}, social=${scores.social?.toFixed(1) || '3'}, structure=${scores.structure?.toFixed(1) || '3'}.
-${scores.thinking > 3.5 ? 'Big-picture thinker — needs context first, hates being buried in details.' : 'Sequential thinker — likes structure, steps and precision.'}
-${scores.motivation < 2.5 ? 'Inner motivation is currently low — be supportive and help reconnect with purpose.' : 'Good inner drive — reinforce and build on it.'}
-Give personal, specific advice based on their unique profile. Be warm, practical and concise.
-IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach. Short paragraphs, human tone, no symbols.`
+
+DIMENSION SCORES:
+Thinking: ${scores.thinking?.toFixed(1) || '3'} ${scores.thinking > 3.5 ? '(big-picture simultaneous thinker)' : scores.thinking < 2.5 ? '(sequential analyst)' : '(flexible thinker)'}
+Motivation: ${scores.motivation?.toFixed(1) || '3'} ${scores.motivation < 2.5 ? '⚠️ CURRENTLY LOW' : scores.motivation > 3.5 ? '(strong inner drive)' : '(moderate)'}
+Social: ${scores.social?.toFixed(1) || '3'} ${scores.social > 3.5 ? '(collaborative)' : scores.social < 2.5 ? '(independent)' : '(flexible)'}
+Environment: ${scores.environment?.toFixed(1) || '3'} ${scores.environment > 3.5 ? '(movement + informal = creative mode)' : '(structured + quiet = analytical mode)'}
+Structure: ${scores.structure?.toFixed(1) || '3'}
+
+SENSORY CHANNELS — individual strengths:
+${channelContext}
+
+KEY INSIGHTS:
+${scores.thinking > 3.5 ? '- Needs big picture and context BEFORE details — never lead with steps' : '- Needs clear steps and structure — context after, not before'}
+${scores.motivation < 2.5 ? '- Inner motivation is LOW — be gentle, help reconnect with purpose and strengths' : ''}
+${answers[15] >= 4 ? '- Very strong learning-by-doing — hands-on tasks and direct experience work far better than reading or watching' : ''}
+${answers[12] < 2.5 ? '- Reading is a WEAK channel — avoid long written instructions. Use verbal + visual instead.' : ''}
+${answers[7] < 2.5 ? '- Listening is a WEAK channel — verbal-only instructions will not land well. Always complement with written or visual.' : ''}
+${answers[10] < 2.5 ? '- Visual/charts is a WEAK channel — diagrams and slides may not be the clearest format for them.' : ''}
+
+Give personal, specific advice based on their exact profile. Reference their actual channels when relevant. Be warm, practical and conversational.
+IMPORTANT: Never use markdown, headers, bullets or bold. Write like a trusted coach speaking directly. Short paragraphs, human tone.`
 
     try {
       const res = await fetch('/api/chat', {
