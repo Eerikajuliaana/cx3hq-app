@@ -161,26 +161,130 @@ Rewrite the message, then briefly explain why this works for them.`
               <div style={{ color: 'var(--white-dim)', fontSize: '0.9rem', fontWeight: 300 }}>
                 {scores.thinking > 3.5 ? 'Big-picture thinker' : 'Sequential precision thinker'} · {scores.motivation > 3.5 ? 'Strongly self-driven' : scores.motivation < 2.5 ? 'Inner motivation needs attention' : 'Moderate inner drive'} · {scores.social > 3.5 ? 'Team-oriented' : 'Independent worker'}
               </div>
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(0,212,170,0.06)', borderRadius: '8px', border: '1px solid var(--teal-border)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--teal)', lineHeight: 1.6 }}>
+                  ℹ️ Your biological dimensions are shown as a spectrum — neither end is better or worse. They describe how you naturally work, not how good you are. Only Motivation and Structure reflect your current state.
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              {Object.entries(scores).map(([dim, score]) => (
-                <div key={dim} className="card">
-                  <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>{dim}</div>
-                  <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    {dim === 'thinking' && (score > 3.5 ? 'Big-picture thinker' : score < 2.5 ? 'Sequential analyst' : 'Flexible thinker')}
-                    {dim === 'sensory' && (score > 3.5 ? 'Multi-channel learner' : 'Focused channel learner')}
-                    {dim === 'environment' && (score > 3.5 ? 'Needs movement & informality' : 'Structured environment')}
-                    {dim === 'social' && (score > 3.5 ? 'Team & pair oriented' : score < 2.5 ? 'Independent worker' : 'Flexible collaborator')}
-                    {dim === 'motivation' && (score > 3.5 ? 'Strong inner drive' : score < 2.5 ? '⚠️ Low inner motivation' : 'Moderate inner drive')}
-                    {dim === 'structure' && (score > 3.5 ? 'Highly adaptable' : score < 2.5 ? 'Needs clear structure' : 'Flexible either way')}
+            {/* BIOLOGICAL DIMENSIONS — AXIS */}
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>Biological working style — permanent & unique to you</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  {
+                    dim: 'thinking',
+                    label: 'Thinking & Processing',
+                    leftLabel: 'Sequential',
+                    rightLabel: 'Simultaneous',
+                    leftDesc: 'Step-by-step, detail-first, analytical precision',
+                    rightDesc: 'Big-picture, pattern recognition, simultaneous processing',
+                    score: scores.thinking,
+                    strengthLabel: scores.thinking < 2.5 ? 'Sequential analyst — your strength is precision, structure and detail' :
+                      scores.thinking > 3.5 ? 'Big-picture thinker — your strength is vision, patterns and context' :
+                      'Flexible thinker — you move between detail and overview'
+                  },
+                  {
+                    dim: 'sensory',
+                    label: 'Sensory Channels',
+                    leftLabel: 'Focused',
+                    rightLabel: 'Multi-channel',
+                    leftDesc: 'One or two strong channels — deep processing in those channels',
+                    rightDesc: 'Multiple strong channels — absorbs through many formats',
+                    score: scores.sensory,
+                    strengthLabel: scores.sensory < 2.5 ? 'Focused channel learner — you go deep in your strongest channel' :
+                      scores.sensory > 3.5 ? 'Multi-channel learner — you absorb through many formats simultaneously' :
+                      'Selective channel learner — a few channels work well for you'
+                  },
+                  {
+                    dim: 'social',
+                    label: 'Social Working Style',
+                    leftLabel: 'Independent',
+                    rightLabel: 'Collaborative',
+                    leftDesc: 'Best thinking happens alone — autonomy drives performance',
+                    rightDesc: 'Best thinking happens with others — collaboration energises',
+                    score: scores.social,
+                    strengthLabel: scores.social < 2.5 ? 'Independent worker — you produce your best work with autonomy and solo time' :
+                      scores.social > 3.5 ? 'Collaborative performer — you think and work best with others around' :
+                      'Flexible collaborator — you adapt well to both solo and team work'
+                  },
+                  {
+                    dim: 'environment',
+                    label: 'Environment & Performance Mode',
+                    leftLabel: 'Structured & quiet',
+                    rightLabel: 'Movement & informal',
+                    leftDesc: 'Analytical performance mode — quiet, still, formal settings',
+                    rightDesc: 'Creative performance mode — movement, background sounds, informal',
+                    score: scores.environment,
+                    strengthLabel: scores.environment < 2.5 ? 'Analytical mode — quiet structured environments activate your best performance' :
+                      scores.environment > 3.5 ? 'Creative mode — movement and informal environments activate your best performance' :
+                      'Adaptable — you perform well across different environments'
+                  }
+                ].map(({ dim, label, leftLabel, rightLabel, leftDesc, rightDesc, score, strengthLabel }) => {
+                  const position = ((score - 1) / 4) * 100
+                  return (
+                    <div key={dim} className="card" style={{ padding: '1.25rem' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>{label}</div>
+                      <div style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--white)' }}>{strengthLabel}</div>
+
+                      {/* AXIS */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--white-dim)', marginBottom: '0.4rem' }}>
+                        <span style={{ fontWeight: 600, color: position < 40 ? 'var(--teal)' : 'var(--white-dim)' }}>{leftLabel}</span>
+                        <span style={{ fontWeight: 600, color: position > 60 ? 'var(--teal)' : 'var(--white-dim)' }}>{rightLabel}</span>
+                      </div>
+                      <div style={{ position: 'relative', height: '6px', background: 'linear-gradient(90deg, var(--navy-light), var(--navy-light))', borderRadius: '3px', border: '1px solid var(--border)', marginBottom: '0.4rem' }}>
+                        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--border)', transform: 'translateY(-50%)' }} />
+                        <div style={{ position: 'absolute', left: `calc(${position}% - 8px)`, top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--teal)', border: '2px solid var(--black)', boxShadow: '0 0 8px rgba(0,212,170,0.4)' }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: 'var(--white-faint)', fontStyle: 'italic', marginTop: '0.25rem' }}>
+                        <span style={{ maxWidth: '45%' }}>{leftDesc}</span>
+                        <span style={{ maxWidth: '45%', textAlign: 'right' }}>{rightDesc}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* LEARNED DIMENSIONS — SCALE */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--white-dim)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>Current state — reflects how you feel right now, not your biological wiring</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                {[
+                  {
+                    dim: 'motivation',
+                    label: 'Inner Motivation',
+                    score: scores.motivation,
+                    desc: scores.motivation > 3.5 ? 'Strong inner drive — you push yourself beyond expectations because it matters to you personally.' :
+                      scores.motivation < 2.5 ? '⚠️ Your inner motivation is currently low. This is a current state — not permanent. Something may be misaligned with your natural needs.' :
+                      'Moderate inner drive. There may be room to reconnect with what genuinely excites you.',
+                    color: scores.motivation > 3.5 ? 'var(--green)' : scores.motivation < 2.5 ? 'var(--red)' : 'var(--amber)'
+                  },
+                  {
+                    dim: 'structure',
+                    label: 'Structure & Adaptability',
+                    score: scores.structure,
+                    desc: scores.structure > 3.5 ? 'Highly adaptable — you handle change and ambiguity well. You work best when you can set your own direction.' :
+                      scores.structure < 2.5 ? 'You perform best with clear goals, structured processes and regular feedback.' :
+                      'Moderately structured — you work well with clear goals but flexibility in how you get there.',
+                    color: 'var(--teal)'
+                  }
+                ].map(({ dim, label, score, desc, color }) => (
+                  <div key={dim} className="card">
+                    <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>{label}</div>
+                    <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.4rem' }}>
+                      <div style={{ height: '100%', background: color, width: `${(score/5)*100}%`, borderRadius: '3px', transition: 'width 0.5s ease' }} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--white-dim)', marginBottom: '0.75rem' }}>
+                      <span>Low</span>
+                      <span style={{ color, fontWeight: 700 }}>{score?.toFixed(1)} / 5</span>
+                      <span>High</span>
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--white-dim)', lineHeight: 1.6, fontWeight: 300 }}>{desc}</div>
                   </div>
-                  {getBar(score)}
-                  <div style={{ fontSize: '0.72rem', color: 'var(--white-dim)', marginTop: '0.3rem', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Low</span><span style={{ color: score >= 4 ? 'var(--green)' : score >= 2.5 ? 'var(--amber)' : 'var(--red)', fontWeight: 600 }}>{score?.toFixed(1)}/5</span><span>High</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
