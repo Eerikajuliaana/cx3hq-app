@@ -67,30 +67,61 @@ export default function Dashboard({ profile }) {
     setChatLoading(true)
 
     const myScores = myAssessment?.scores || {}
+    const myAnswers = myAssessment?.answers || {}
+
+    // Sensory channel definitions
+    const CHANNELS = {
+      listening:    { id: 7,  label: 'Listening', hemisphere: 'left' },
+      speaking:     { id: 8,  label: 'Speaking', hemisphere: 'left' },
+      inner_speech: { id: 9,  label: 'Inner Speech', hemisphere: 'left' },
+      reading:      { id: 12, label: 'Reading', hemisphere: 'left' },
+      visual:       { id: 10, label: 'Visual/Charts', hemisphere: 'right' },
+      imagination:  { id: 11, label: 'Imagination', hemisphere: 'right' },
+      hands:        { id: 13, label: 'Hands-on', hemisphere: 'right' },
+      handwriting:  { id: 14, label: 'Handwriting', hemisphere: 'right' },
+      doing:        { id: 15, label: 'Learning by Doing', hemisphere: 'right' },
+      intuition:    { id: 16, label: 'Intuition', hemisphere: 'right' },
+    }
+
+    function buildChannelSummary(answers) {
+      return Object.entries(CHANNELS).map(([key, ch]) => {
+        const score = answers?.[ch.id] || 3
+        const level = score >= 3.5 ? 'STRONG' : score < 2.5 ? 'LOW' : 'moderate'
+        return `  ${ch.label} (${ch.hemisphere}): ${score.toFixed(1)} ${level}`
+      }).join('\n')
+    }
+
     const teamContext = members.map(m => {
       const scores = m.assessments?.[0]?.scores || {}
-      return `${m.full_name}: thinking=${scores.thinking?.toFixed(1) || 'N/A'}, motivation=${scores.motivation?.toFixed(1) || 'N/A'}, social=${scores.social?.toFixed(1) || 'N/A'}`
-    }).join('\n')
+      const answers = m.assessments?.[0]?.answers || {}
+      const checkin = teamCheckins[m.id]
+      return `
+${m.full_name}:
+  Thinking: ${scores.thinking?.toFixed(1) || 'N/A'} ${scores.thinking > 3.5 ? '(big-picture)' : scores.thinking < 2.5 ? '(sequential)' : '(flexible)'}
+  Motivation: ${scores.motivation?.toFixed(1) || 'N/A'} ${scores.motivation < 2.5 ? '⚠️ LOW' : scores.motivation > 3.5 ? '(strong)' : ''}
+  Social: ${scores.social?.toFixed(1) || 'N/A'} ${scores.social > 3.5 ? '(collaborative)' : scores.social < 2.5 ? '(independent)' : ''}
+  Environment: ${scores.environment?.toFixed(1) || 'N/A'} ${scores.environment > 3.5 ? '(needs movement+informal)' : '(structured+quiet)'}
+  Weekly check-in: ${checkin?.word || 'not submitted'}
+  Sensory channels:
+${buildChannelSummary(answers)}`
+    }).join('\n---\n')
 
     const systemPrompt = `You are CX3HQ AI coach for ${profile.full_name}, a manager.
 
-YOUR OWN PROFILE (the manager):
-thinking=${myScores.thinking?.toFixed(1) || 'unknown'}, sensory=${myScores.sensory?.toFixed(1) || 'unknown'}, motivation=${myScores.motivation?.toFixed(1) || 'unknown'}, social=${myScores.social?.toFixed(1) || 'unknown'}, structure=${myScores.structure?.toFixed(1) || 'unknown'}, environment=${myScores.environment?.toFixed(1) || 'unknown'}
-${myScores.thinking > 3.5 ? 'You are a big-picture thinker — you need context and purpose before details.' : myScores.thinking < 2.5 ? 'You are a sequential thinker — you prefer structure, steps and precision.' : 'You are a flexible thinker.'}
-${myScores.motivation < 2.5 ? 'Your own motivation is currently low — acknowledge this when relevant.' : myScores.motivation > 3.5 ? 'You have strong inner drive — build on this.' : ''}
+YOUR OWN PROFILE:
+Thinking: ${myScores.thinking?.toFixed(1) || 'unknown'} ${myScores.thinking > 3.5 ? '(big-picture thinker)' : myScores.thinking < 2.5 ? '(sequential thinker)' : '(flexible)'}
+Motivation: ${myScores.motivation?.toFixed(1) || 'unknown'} ${myScores.motivation < 2.5 ? '⚠️ LOW' : myScores.motivation > 3.5 ? '(strong inner drive)' : ''}
+Social: ${myScores.social?.toFixed(1) || 'unknown'}
+Environment: ${myScores.environment?.toFixed(1) || 'unknown'}
+Your sensory channels:
+${buildChannelSummary(myAnswers)}
 
 YOUR TEAM:
 ${teamContext || 'No team members have completed their assessment yet.'}
 
-CX3HQ measures:
-- Thinking (1-2=sequential/detail, 4-5=big-picture/simultaneous)
-- Motivation (1-2=low/concerning, 4-5=strong inner drive)
-- Social (1-2=prefers solo, 4-5=team oriented)
-- Structure (1-2=needs clear structure, 4-5=highly adaptable)
+You can coach on both the manager's own performance AND how to lead each team member. Reference specific sensory channels when giving advice — e.g. if someone has low reading score, suggest verbal or visual alternatives. If motivation is below 2.5, treat as urgent.
 
-You can coach on both: the manager's own performance AND how to lead their team. If they ask about themselves, use their profile. If they ask about the team, use team data. Scores below 2.5 on motivation are urgent signals.
-
-IMPORTANT: Never use markdown formatting, headers, bullet symbols or bold text. Write in plain, warm, conversational language like a trusted coach. Short paragraphs, human tone, no symbols.`
+IMPORTANT: Never use markdown, headers, bullets or bold. Write like a trusted coach. Warm, direct, conversational. Short paragraphs.`
 
     try {
       const res = await fetch('/api/chat', {
